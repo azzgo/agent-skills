@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+"""
+JSON-RPC 2.0 client for aria2.
+
+Implements the core RPC client with:
+- JSON-RPC 2.0 request formatting
+- Token authentication injection
+- HTTP POST transport using urllib.request
+- Response parsing and error handling
+"""
+
+import json
+import urllib.request
+import urllib.error
+import sys
+import time
+from typing import Any, Dict, List, Optional, Union
+
+
+class Aria2RpcError(Exception):
+    """Raised when aria2 returns an error response."""
+
+    def __init__(
+        self, code: int, message: str, data: Any = None, request_id: str = None
+    ):
+        self.code = code
+        self.message = message
+        self.data = data
+        self.request_id = request_id
+        super().__init__(f"aria2 RPC error [{code}]: {message}")
+
+
+class Aria2RpcClient:
+    """
+    JSON-RPC 2.0 client for aria2.
+
+    Handles request formatting, authentication, HTTP transport,
+    and response parsing according to JSON-RPC 2.0 specification.
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the RPC client with configuration.
+
+        Args:
+            config: Dictionary with keys: host, port, secret, secure, timeout
+        """
+        self.config = config
+        self.request_counter = 0
+        self.endpoint_url = self._build_endpoint_url()
+
+    def _build_endpoint_url(self) -> str:
+        """Build the full RPC endpoint URL."""
+        protocol = "https" if self.config.get("secure", False) else "http"
+        host = self.config["host"]
+        port = self.config["port"]
+        return f"{protocol}://{host}:{port}/jsonrpc"
+
+    def _generate_request_id(self) -> str:
+        """Generate a unique request ID."""
+        self.request_counter += 1
+        return f"aria2-rpc-{self.request_counter}"
+
+    def _inject_token(self, params: List[Any]) -> List[Any]:
+        """
+        Inject authentication token as first parameter if configured.
+
+        Args:
+            params: Original parameters array
+
+        Returns:
+            Parameters array with token prepended if secret is configured
+        """
+        secret = self.config.get("secret")
+        if secret:
+            return [f"token:{secret}"] + params
+        return params
+
+    def _format_request(self, method: str, params: List[Any] = None) -> Dict[str, Any]:
+        """
+        Format a JSON-RPC 2.0 request.
+
+        Args:
+            method: RPC method name (e.g., "aria2.addUri")
+            params: Method parameters (list)
+
+        Returns:
+            JSON-RPC 2.0 request dictionary
+        """
+        if params is None:
+            params = []
+
+        # Inject token for aria2.* methods (not system.* methods)
+        if method.startswith("aria2."):
+            params = self._inject_token(params)
+
+        request = {
+            "jsonrpc": "2.0",
+            "id": self._generate_request_id(),
+            "method": method,
+            "params": params,
+        }
+
+        return request
+
+    def _send_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Send HTTP POST request to aria2 RPC endpoint.
+
+        Args:
+            request: JSON-RPC request dictionary
+
+        Returns:
+            JSON-RPC response dictionary
+
+        Raises:
+            urllib.error.URLError: On network errors
+            json.JSONDecodeError: On response parse errors
+        """
+        request_data = json.dumps(request).encode("utf-8")
+
+        req = urllib.request.Request(
+            self.endpoint_url,
+            data=request_data,
+            headers={"Content-Type": "application/json"},
+        )
+
+        timeout_sec = self.config.get("timeout", 30000) / 1000.0
+
+        try:
+            response = urllib.request.urlopen(req, timeout=timeout_sec)
+            response_data = response.read().decode("utf-8")
+            return json.loads(response_data)
+        except urllib.error.HTTPError as e:
+            # Try to parse error response
+            try:
+                error_data = e.read().decode("utf-8")
+                return json.loads(error_data)
+            except:
+                raise Exception(f"HTTP error {e.code}: {e.reason}")
+        except urllib.error.URLError as e:
+            raise Exception(f"Network error: {e.reason}")
+        except json.JSONDecodeError as e:
+            raise Exception(
+                f"Invalid JSON response from aria2\n"
+                f"Parse error at line {e.lineno}, column {e.colno}: {e.msg}"
+            )
+
+    def _parse_response(self, response: Dict[str, Any], request_id: str) -> Any:
+        """
+        Parse JSON-RPC 2.0 response and extract result or error.
+
+        Args:
+            response: JSON-RPC response dictionary
+            request_id: Request ID for correlation
+
+        Returns:
+            Result value from response
+
+        Raises:
+            Aria2RpcError: If response contains an error
+            Exception: If response is invalid
+        """
+        # Validate JSON-RPC 2.0 response structure
+        if not isinstance(response, dict):
+            raise Exception("Invalid JSON-RPC response: not a dictionary")
+
+        if response.get("jsonrpc") != "2.0":
+            raise Exception(
+                "Invalid JSON-RPC response: missing or invalid jsonrpc field"
+            )
+
+        if response.get("id") != request_id:
+            raise Exception(
+                f"Invalid JSON-RPC response: ID mismatch "
+                f"(expected {request_id}, got {response.get('id')})"
+            )
+
+        # Check for error response
+        if "error" in response:
+            error = response["error"]
+            raise Aria2RpcError(
+                code=error.get("code", -1),
+                message=error.get("message", "Unknown error"),
+                data=error.get("data"),
+                request_id=request_id,
+            )
+
+        # Extract result
+        if "result" not in response:
+            raise Exception(
+                "Invalid JSON-RPC response: missing both result and error fields"
+            )
+
+        return response["result"]
+
+    def call(self, method: str, params: List[Any] = None) -> Any:
+        """
+        Call an aria2 RPC method.
+
+        Args:
+            method: RPC method name (e.g., "aria2.addUri")
+            params: Method parameters (list)
+
+        Returns:
+            Result from aria2
+
+        Raises:
+            Aria2RpcError: If aria2 returns an error
+            Exception: On network or parse errors
+        """
+        request = self._format_request(method, params)
+        request_id = request["id"]
+
+        try:
+            response = self._send_request(request)
+            return self._parse_response(response, request_id)
+        except Aria2RpcError:
+            # Re-raise aria2 errors as-is
+            raise
+        except Exception as e:
+            # Wrap other exceptions with context
+            raise Exception(
+                f"Failed to call {method}: {e}\n"
+                f"Request ID: {request_id}\n"
+                f"Endpoint: {self.endpoint_url}"
+            )
+
+    # Milestone 1 methods
+
+    def add_uri(
+        self,
+        uris: Union[str, List[str]],
+        options: Dict[str, Any] = None,
+        position: int = None,
+    ) -> str:
+        """
+        Add a new download task from URIs.
+
+        Args:
+            uris: Single URI string or list of URIs
+            options: Download options (e.g., {"dir": "/path", "out": "filename"})
+            position: Position in download queue (optional)
+
+        Returns:
+            GID (Global ID) of the new download task
+        """
+        # Convert single URI to list
+        if isinstance(uris, str):
+            uris = [uris]
+
+        params = [uris]
+        if options:
+            params.append(options)
+        if position is not None:
+            params.append(position)
+
+        return self.call("aria2.addUri", params)
+
+    def tell_status(self, gid: str, keys: List[str] = None) -> Dict[str, Any]:
+        """
+        Query status of a download task.
+
+        Args:
+            gid: GID of the download task
+            keys: Specific keys to retrieve (optional, returns all if None)
+
+        Returns:
+            Status dictionary with download information
+        """
+        params = [gid]
+        if keys:
+            params.append(keys)
+
+        return self.call("aria2.tellStatus", params)
+
+    def remove(self, gid: str) -> str:
+        """
+        Remove a download task.
+
+        Args:
+            gid: GID of the download task to remove
+
+        Returns:
+            GID of the removed task
+        """
+        return self.call("aria2.remove", [gid])
+
+    def get_global_stat(self) -> Dict[str, Any]:
+        """
+        Get global statistics.
+
+        Returns:
+            Dictionary with global stats (numActive, numWaiting, downloadSpeed, uploadSpeed, etc.)
+        """
+        return self.call("aria2.getGlobalStat", [])
+
+
+def main():
+    """Test the RPC client."""
+    import sys
+    import os
+
+    # Add parent directory to path to import config_loader
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from config_loader import Aria2Config
+
+    print("Testing aria2 JSON-RPC client...")
+    print()
+
+    try:
+        # Load configuration
+        config_loader = Aria2Config()
+        config = config_loader.load()
+
+        print("✓ Configuration loaded")
+        print(f"  Endpoint: {config_loader.get_endpoint_url()}")
+        print()
+
+        # Create RPC client
+        client = Aria2RpcClient(config)
+
+        # Test connection with getGlobalStat
+        print("Testing connection with aria2.getGlobalStat...")
+        stats = client.get_global_stat()
+
+        print("✓ Connection successful")
+        print()
+        print("Global Statistics:")
+        for key, value in stats.items():
+            print(f"  {key}: {value}")
+
+    except Aria2RpcError as e:
+        print(f"✗ aria2 error: {e}")
+        print(f"  Code: {e.code}")
+        print(f"  Message: {e.message}")
+        if e.data:
+            print(f"  Data: {e.data}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

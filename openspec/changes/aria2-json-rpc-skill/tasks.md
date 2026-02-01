@@ -1,23 +1,23 @@
 ## 1. Milestone 1: Core Setup and Basic Operations
 
-- [ ] 1.1 Create skill directory structure: skills/aria2-json-rpc/
-- [ ] 1.2 Create SKILL.md with skill metadata and usage instructions
-- [ ] 1.3 Create assets/ directory for templates and resources
-- [ ] 1.4 Create scripts/ directory for executable scripts
-- [ ] 1.5 Create references/ directory for documentation
-- [ ] 1.6 Implement dependency check module (Python version, builtin modules)
-- [ ] 1.7 Implement configuration loading from assets/config.json or root config.json
-- [ ] 1.8 Implement configuration loading from environment variables (ARIA2_RPC_*)
-- [ ] 1.9 Implement configuration validation and connection testing
-- [ ] 1.7 Implement JSON-RPC 2.0 request formatting (jsonrpc, method, params, id)
-- [ ] 1.8 Implement token injection for authentication (token:<SECRET_TOKEN>)
-- [ ] 1.9 Implement HTTP POST client using urllib.request
-- [ ] 1.10 Implement JSON-RPC response parsing (result/error handling)
-- [ ] 1.11 Implement aria2.addUri method (single and multiple URLs)
-- [ ] 1.12 Implement aria2.tellStatus method (task status query)
-- [ ] 1.13 Implement aria2.remove method (task removal)
-- [ ] 1.14 Implement aria2.getGlobalStat method (global statistics)
-- [ ] 1.15 Implement natural language command mapping for Milestone 1 methods
+- [x] 1.1 Create skill directory structure: skills/aria2-json-rpc/
+- [x] 1.2 Create SKILL.md with skill metadata and usage instructions
+- [x] 1.3 Create assets/ directory for templates and resources
+- [x] 1.4 Create scripts/ directory for executable scripts
+- [x] 1.5 Create references/ directory for documentation
+- [x] 1.6 Implement dependency check module (Python version, builtin modules)
+- [x] 1.7 Implement configuration loading from assets/config.json or root config.json
+- [x] 1.8 Implement configuration loading from environment variables (ARIA2_RPC_*)
+- [x] 1.9 Implement configuration validation and connection testing
+- [x] 1.7 Implement JSON-RPC 2.0 request formatting (jsonrpc, method, params, id)
+- [x] 1.8 Implement token injection for authentication (token:<SECRET_TOKEN>)
+- [x] 1.9 Implement HTTP POST client using urllib.request
+- [x] 1.10 Implement JSON-RPC response parsing (result/error handling)
+- [x] 1.11 Implement aria2.addUri method (single and multiple URLs)
+- [x] 1.12 Implement aria2.tellStatus method (task status query)
+- [x] 1.13 Implement aria2.remove method (task removal)
+- [x] 1.14 Implement aria2.getGlobalStat method (global statistics)
+- [x] 1.15 Implement natural language command mapping for Milestone 1 methods
 - [ ] 1.16 Add Python unit tests for RPC client (HTTP POST, token injection, response parsing)
 - [ ] 1.17 Add Python unit tests for configuration module (config.json, environment variables, validation)
 - [ ] 1.18 Add Python unit tests for natural language mapping (command parsing, method selection)
