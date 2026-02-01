@@ -68,6 +68,8 @@ The skill runs within the OpenCode agent framework and must integrate with the s
 
 **Environment variables**: ARIA2_RPC_HOST, ARIA2_RPC_PORT, ARIA2_RPC_SECRET, ARIA2_RPC_SECURE, ARIA2_RPC_TIMEOUT
 
+**Configuration file location**: Place config.json under `skills/aria2-json-rpc/assets/` or at the skill root `skills/aria2-json-rpc/config.json`. Add to .gitignore to avoid committing secrets.
+
 ### Token Authentication
 
 **Decision**: Inject token as first parameter in params array with format `token:<SECRET_TOKEN>` for all aria2.* methods.
@@ -706,7 +708,7 @@ After all tests complete, generate comprehensive report:
 
 2. **Command Mapping Complexity**: Is keyword-based mapping sufficient, or should we implement more sophisticated intent classification? (Current approach: simple keyword matching should work for aria2's straightforward method names)
 
-3. **Configuration File Location**: Should we support global configuration in user home directory, or only project-local config.json? (Decided: only project-local skills/aria2-json-rpc/config.json to avoid cross-project conflicts)
+3. **Configuration File Location**: Should we support global configuration in user home directory, or only skill-local assets/config.json? (Decided: only skill-local skills/aria2-json-rpc/assets/config.json to avoid cross-project conflicts, following agentskills.io recommended structure)
 
 4. **Error Recovery Granularity**: Should users configure retry count and backoff strategy, or use fixed defaults? (Current approach: fixed defaults, can expose configuration if needed)
 

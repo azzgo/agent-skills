@@ -2,10 +2,13 @@
 
 - [ ] 1.1 Create skill directory structure: skills/aria2-json-rpc/
 - [ ] 1.2 Create SKILL.md with skill metadata and usage instructions
-- [ ] 1.3 Implement dependency check module (Python version, builtin modules)
-- [ ] 1.4 Implement configuration loading from config.json
-- [ ] 1.5 Implement configuration loading from environment variables (ARIA2_RPC_*)
-- [ ] 1.6 Implement configuration validation and connection testing
+- [ ] 1.3 Create assets/ directory for templates and resources
+- [ ] 1.4 Create scripts/ directory for executable scripts
+- [ ] 1.5 Create references/ directory for documentation
+- [ ] 1.6 Implement dependency check module (Python version, builtin modules)
+- [ ] 1.7 Implement configuration loading from assets/config.json or root config.json
+- [ ] 1.8 Implement configuration loading from environment variables (ARIA2_RPC_*)
+- [ ] 1.9 Implement configuration validation and connection testing
 - [ ] 1.7 Implement JSON-RPC 2.0 request formatting (jsonrpc, method, params, id)
 - [ ] 1.8 Implement token injection for authentication (token:<SECRET_TOKEN>)
 - [ ] 1.9 Implement HTTP POST client using urllib.request
@@ -154,13 +157,13 @@
 ## 7. Documentation and Examples
 
 - [ ] 7.1 Complete SKILL.md with full API reference
-- [ ] 7.2 Add configuration examples (config.json, environment variables)
+- [ ] 7.2 Add configuration examples (assets/config.json, environment variables)
 - [ ] 7.3 Add usage examples for all RPC methods
 - [ ] 7.4 Add troubleshooting section for common issues
 - [ ] 7.5 Add security best practices documentation
 - [ ] 7.6 Add milestone rollout guide
 - [ ] 7.7 Add examples of natural language commands
-- [ ] 7.8 Add example scripts for common workflows
+- [ ] 7.8 Add example scripts in scripts/ for common workflows
 - [ ] 7.9 Document error messages and solutions
 - [ ] 7.10 Add testing documentation (how to run unit tests, integration tests)
 - [ ] 7.11 Document test report interpretation
@@ -169,7 +172,7 @@
 ## 8. Final Integration and Deployment
 
 - [ ] 8.1 Register skill in OpenCode agent framework
-- [ ] 8.2 Verify skill loading and initialization
+- [ ] 8.2 Verify skill loading and initialization (SKILL.md + assets/ + scripts/ + references/)
 - [ ] 8.3 Test skill integration with agent command parser
 - [ ] 8.4 Perform end-to-end testing with real aria2 daemon
 - [ ] 8.5 Test all three milestones sequentially with real aria2
