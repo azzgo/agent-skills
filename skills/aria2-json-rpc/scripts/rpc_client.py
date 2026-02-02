@@ -125,7 +125,10 @@ class Aria2RpcClient:
         req = urllib.request.Request(
             self.endpoint_url,
             data=request_data,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "aria2-json-rpc-client/1.0",
+            },
         )
 
         timeout_sec = self.config.get("timeout", 30000) / 1000.0

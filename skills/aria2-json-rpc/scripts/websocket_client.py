@@ -121,8 +121,12 @@ class Aria2WebSocketClient:
         """
         try:
             timeout_sec = self.config.get("timeout", 30000) / 1000.0
+            extra_headers = {
+                "User-Agent": "aria2-json-rpc-client/1.0",
+            }
             self.connection = await asyncio.wait_for(
-                websockets.connect(self.ws_url), timeout=timeout_sec
+                websockets.connect(self.ws_url, extra_headers=extra_headers),
+                timeout=timeout_sec,
             )
             print(f"✓ WebSocket connected to {self.ws_url}")
         except asyncio.TimeoutError:

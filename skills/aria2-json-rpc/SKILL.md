@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.6+. WebSocket support requires websockets package (pip install websockets) and Python version must match dependency requirements.
 metadata:
   author: ISON
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 ## What This Skill Does
