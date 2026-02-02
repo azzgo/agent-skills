@@ -33,6 +33,12 @@ class ConfigurationError(Exception):
 class Aria2Config:
     """
     Manages aria2 RPC configuration with multi-source loading.
+
+    Configuration priority (highest to lowest):
+    1. Environment variables (ARIA2_RPC_*)
+    2. Skill directory config (project-specific)
+    3. User config directory (global fallback, update-safe)
+    4. Defaults
     """
 
     DEFAULT_CONFIG = {
@@ -55,29 +61,59 @@ class Aria2Config:
         "timeout": "ARIA2_RPC_TIMEOUT",
     }
 
+    # User config directory (XDG standard)
+    USER_CONFIG_DIR = os.path.expanduser("~/.config/aria2-skill")
+    USER_CONFIG_FILE = os.path.join(USER_CONFIG_DIR, "config.json")
+
     def __init__(self, config_path=None):
         """
         Initialize configuration loader.
 
         Args:
-            config_path (str, optional): Path to config.json file.
-                                        Defaults to skills/aria2-json-rpc/config.json
+            config_path (str, optional): Explicit path to config.json file.
+                                        If provided, only this path will be used.
+                                        Otherwise, searches multiple locations.
         """
-        self.config_path = config_path or self._get_default_config_path()
+        self.explicit_config_path = config_path
         self.config = self.DEFAULT_CONFIG.copy()
         self._loaded = False
+        self._loaded_from = None  # Track where config was loaded from
+        self._loaded_from_env = False  # Track if env vars were used
 
-    def _get_default_config_path(self):
-        """Get the default path to config.json in the skill directory."""
+    def _get_skill_config_path(self):
+        """Get the config.json path in the skill directory."""
         script_dir = os.path.dirname(os.path.abspath(__file__))
         skill_dir = os.path.dirname(script_dir)
         return os.path.join(skill_dir, "config.json")
+
+    def _get_config_search_paths(self):
+        """
+        Get list of config file paths to search (in priority order).
+
+        Priority (high to low):
+        1. Environment variables (handled separately in load())
+        2. Skill directory config (project-specific, may be lost on update)
+        3. User config directory (global fallback, update-safe)
+        4. Defaults (handled separately in load())
+
+        Returns:
+            list: List of (path, description) tuples
+        """
+        if self.explicit_config_path:
+            return [(self.explicit_config_path, "explicit path")]
+
+        paths = [
+            (self._get_skill_config_path(), "skill directory"),
+            (self.USER_CONFIG_FILE, "user config directory"),
+        ]
+
+        return paths
 
     def load(self):
         """
         Load configuration from all sources with priority resolution.
 
-        Priority: Environment Variables > config.json > Defaults
+        Priority: Environment Variables > Skill Directory > User Directory > Defaults
 
         Returns:
             dict: Loaded configuration
@@ -85,24 +121,33 @@ class Aria2Config:
         Raises:
             ConfigurationError: If configuration is invalid
         """
-        # Start with defaults
+        # 1. Start with defaults
         config = self.DEFAULT_CONFIG.copy()
+        self._loaded_from = "defaults"
 
-        # Load from config.json if it exists
-        if os.path.exists(self.config_path):
-            try:
-                file_config = self._load_from_file(self.config_path)
-                config.update(file_config)
-            except Exception as e:
-                raise ConfigurationError(
-                    f"Failed to load config from {self.config_path}: {e}"
-                )
+        # 2. Search config files (skill dir → user dir)
+        for config_path, description in self._get_config_search_paths():
+            if os.path.exists(config_path):
+                try:
+                    file_config = self._load_from_file(config_path)
+                    config.update(file_config)
+                    self._loaded_from = config_path
+                    break  # Use first found config
+                except Exception as e:
+                    # If explicit path was specified, raise the error
+                    if self.explicit_config_path:
+                        raise
+                    # Otherwise, log warning and continue to next path
+                    print(f"Warning: Failed to load config from {config_path}: {e}")
+                    continue
 
-        # Override with environment variables
+        # 3. Override with environment variables (highest priority)
         env_config = self._load_from_env()
-        config.update(env_config)
+        if env_config:
+            config.update(env_config)
+            self._loaded_from_env = True
 
-        # Validate configuration
+        # 4. Validate configuration
         self._validate_config(config)
 
         self.config = config
@@ -293,6 +338,22 @@ class Aria2Config:
             self.load()
         return self.config.copy()
 
+    def get_loaded_from(self):
+        """
+        Get information about where configuration was loaded from.
+
+        Returns:
+            dict: Dictionary with keys:
+                - 'path': Config file path or 'defaults'
+                - 'has_env_override': Whether environment variables were used
+        """
+        if not self._loaded:
+            self.load()
+        return {
+            "path": self._loaded_from,
+            "has_env_override": self._loaded_from_env,
+        }
+
     def reload(self):
         """
         Reload configuration from all sources.
@@ -302,15 +363,22 @@ class Aria2Config:
 
         Note: If reload fails, previous configuration is preserved.
         """
+        old_config = self.config.copy()
+        old_loaded_from = self._loaded_from
+        old_loaded_from_env = self._loaded_from_env
+
         try:
-            old_config = self.config.copy()
             self.config = self.DEFAULT_CONFIG.copy()
             self._loaded = False
+            self._loaded_from = None
+            self._loaded_from_env = False
             return self.load()
         except Exception as e:
             # Restore previous configuration on error
             self.config = old_config
             self._loaded = True
+            self._loaded_from = old_loaded_from
+            self._loaded_from_env = old_loaded_from_env
             raise ConfigurationError(
                 f"Configuration reload failed: {e}\nPrevious configuration preserved."
             )
@@ -326,37 +394,164 @@ class Aria2Config:
 
 
 if __name__ == "__main__":
-    # Test configuration loading
-    print("Testing aria2 configuration loader...")
-    print()
+    import argparse
+    import shutil
+
+    parser = argparse.ArgumentParser(
+        description="aria2 RPC Configuration Manager",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Show current configuration and source
+  python3 config_loader.py show
+
+  # Initialize user config (update-safe)
+  python3 config_loader.py init --user
+
+  # Initialize local config (project-specific)
+  python3 config_loader.py init --local
+
+  # Test connection
+  python3 config_loader.py test
+        """,
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+
+    # Show command
+    show_parser = subparsers.add_parser(
+        "show", help="Show current configuration and source"
+    )
+
+    # Init command
+    init_parser = subparsers.add_parser("init", help="Initialize configuration file")
+    init_group = init_parser.add_mutually_exclusive_group(required=True)
+    init_group.add_argument(
+        "--user",
+        action="store_true",
+        help="Initialize user config (~/.config/aria2-skill/)",
+    )
+    init_group.add_argument(
+        "--local", action="store_true", help="Initialize skill directory config"
+    )
+
+    # Test command
+    test_parser = subparsers.add_parser("test", help="Test connection to aria2 RPC")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(0)
 
     try:
-        config = Aria2Config()
-        config.load()
+        if args.command == "show":
+            # Show current configuration
+            config = Aria2Config()
+            config.load()
 
-        print("✓ Configuration loaded successfully")
-        print()
-        print("Configuration:")
-        for key, value in config.get_all().items():
-            if key == "secret" and value:
-                print(f"  {key}: ****** (hidden)")
+            loaded_info = config.get_loaded_from()
+
+            print("Configuration Status:")
+            print(f"  Loaded from: {loaded_info['path']}")
+            if loaded_info["has_env_override"]:
+                print("  Environment overrides: Yes")
+            print()
+
+            print("Active Configuration:")
+            for key, value in config.get_all().items():
+                if key == "secret" and value:
+                    print(f"  {key}: ****** (hidden)")
+                else:
+                    print(f"  {key}: {value}")
+
+            print()
+            print(f"Endpoint URL: {config.get_endpoint_url()}")
+
+        elif args.command == "init":
+            # Initialize configuration file
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            skill_dir = os.path.dirname(script_dir)
+            example_file = os.path.join(skill_dir, "config.example.json")
+
+            if not os.path.exists(example_file):
+                print(f"✗ Error: config.example.json not found at {example_file}")
+                sys.exit(1)
+
+            if args.user:
+                target_dir = Aria2Config.USER_CONFIG_DIR
+                target_file = Aria2Config.USER_CONFIG_FILE
+                location_desc = "user config directory (update-safe)"
+            else:  # args.local
+                target_dir = skill_dir
+                target_file = os.path.join(skill_dir, "config.json")
+                location_desc = "skill directory (project-specific)"
+
+            # Create directory if needed
+            if not os.path.exists(target_dir):
+                os.makedirs(target_dir, exist_ok=True)
+                print(f"✓ Created directory: {target_dir}")
+
+            # Check if config already exists
+            if os.path.exists(target_file):
+                response = input(
+                    f"Config file already exists at {target_file}\nOverwrite? [y/N]: "
+                )
+                if response.lower() not in ["y", "yes"]:
+                    print("Cancelled.")
+                    sys.exit(0)
+
+            # Copy example to target
+            shutil.copy2(example_file, target_file)
+            print(f"✓ Configuration initialized at: {target_file}")
+            print(f"  Location: {location_desc}")
+            print()
+            print("Next steps:")
+            print(f"  1. Edit the file: {target_file}")
+            print("  2. Update host, port, secret as needed")
+            print("  3. Test connection: python3 config_loader.py test")
+
+        elif args.command == "test":
+            # Test connection
+            print("Loading configuration...")
+            config = Aria2Config()
+            config.load()
+
+            loaded_info = config.get_loaded_from()
+            print(f"✓ Configuration loaded from: {loaded_info['path']}")
+            print()
+
+            print(f"Testing connection to {config.get_endpoint_url()}...")
+            if config.test_connection():
+                print("✓ Connection successful")
+                print()
+                print("aria2 RPC is accessible and responding correctly.")
             else:
-                print(f"  {key}: {value}")
-
-        print()
-        print(f"Endpoint URL: {config.get_endpoint_url()}")
-
-        # Test connection
-        print()
-        print("Testing connection to aria2 RPC endpoint...")
-        if config.test_connection():
-            print("✓ Connection successful")
-        else:
-            print("✗ Connection failed (aria2 daemon may not be running)")
+                print("✗ Connection failed")
+                print()
+                print("Possible reasons:")
+                print("  1. aria2 daemon is not running")
+                print("  2. Wrong host/port configuration")
+                print("  3. Network/firewall issues")
+                print("  4. Wrong RPC secret token")
+                print()
+                print("Current configuration:")
+                for key, value in config.get_all().items():
+                    if key == "secret" and value:
+                        print(f"  {key}: ****** (hidden)")
+                    else:
+                        print(f"  {key}: {value}")
+                sys.exit(1)
 
     except ConfigurationError as e:
         print(f"✗ Configuration error: {e}")
         sys.exit(1)
+    except KeyboardInterrupt:
+        print("\nCancelled by user.")
+        sys.exit(0)
     except Exception as e:
         print(f"✗ Unexpected error: {e}")
+        import traceback
+
+        traceback.print_exc()
         sys.exit(1)

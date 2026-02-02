@@ -43,11 +43,29 @@ aria2c --enable-rpc --rpc-secret="YOUR_TOKEN" --rpc-listen-all=false --rpc-liste
 
 #### Configuration
 
-The skill works out-of-the-box with default settings (localhost:6800). To customize:
+The skill works out-of-the-box with default settings (localhost:6800). For custom configurations, the skill supports multiple configuration sources with the following priority:
 
-1.  Copy `skills/aria2-json-rpc/config.example.json` to `skills/aria2-json-rpc/config.json`.
-2.  Edit the file (do not commit it if it contains secrets):
+**Priority (highest to lowest):**
+1. Environment variables (temporary override)
+2. Skill directory config (project-specific)
+3. User config directory (global, update-safe) 🆕
+4. Defaults
 
+**Recommended Setup (Update-Safe):**
+
+Initialize user configuration that survives skill updates:
+```bash
+# Navigate to the skill directory
+cd skills/aria2-json-rpc
+
+# Initialize user config
+python3 scripts/config_loader.py init --user
+
+# Edit the config file
+nano ~/.config/aria2-skill/config.json
+```
+
+Example configuration:
 ```json
 {
   "host": "localhost",
@@ -56,6 +74,33 @@ The skill works out-of-the-box with default settings (localhost:6800). To custom
   "secure": false,
   "timeout": 30000
 }
+```
+
+**Alternative: Project-Specific Config**
+
+For testing or project-specific settings (⚠️ lost on updates):
+```bash
+cd skills/aria2-json-rpc
+python3 scripts/config_loader.py init --local
+# Edit skills/aria2-json-rpc/config.json
+```
+
+**Alternative: Environment Variables**
+
+For temporary overrides or CI/CD:
+```bash
+export ARIA2_RPC_HOST="localhost"
+export ARIA2_RPC_PORT=6800
+export ARIA2_RPC_SECRET="YOUR_TOKEN"
+```
+
+**Configuration Management:**
+```bash
+# Show current configuration
+python3 scripts/config_loader.py show
+
+# Test connection
+python3 scripts/config_loader.py test
 ```
 
 ---
