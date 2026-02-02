@@ -48,6 +48,10 @@ Add a new download from HTTP/HTTPS/FTP/SFTP/Magnet URIs.
 
 **Parameters:**
 - `uris` (array of strings, required): URIs pointing to the same resource
+  - **Important:** Multiple URIs are treated as backup/mirror sources for the SAME download
+  - aria2 will try each URI in order if one fails (fallback mechanism)
+  - To download multiple separate files, call `aria2.addUri` multiple times with one URL each
+  - Example: `["http://mirror1.com/file.zip", "http://mirror2.com/file.zip"]` creates ONE download with 2 sources
 - `options` (object, optional): Download options (see Options section)
 - `position` (integer, optional): Position in download queue (0-based)
 
@@ -105,6 +109,13 @@ Remove a download. If the download is active, it will be stopped first.
 ```bash
 python scripts/rpc_client.py aria2.remove 2089b05ecca3d829
 ```
+
+**When to use:**
+- Download is in `active`, `waiting`, or `paused` state
+- You want to stop AND remove the download
+- Will fail if download is already `complete`, `error`, or `removed`
+
+**See also:** Use [aria2.removeDownloadResult](#aria2removedownloadresult) for completed/error downloads.
 
 ---
 
@@ -246,23 +257,34 @@ python scripts/rpc_client.py aria2.tellStopped 0 100
 python scripts/rpc_client.py aria2.tellStopped -1 10  # Get last 10
 ```
 
-### aria2.getGlobalStat
+---
 
-Get global download statistics.
+### Pagination Best Practices
 
-**Parameters:** None
+Both `aria2.tellWaiting` and `aria2.tellStopped` use pagination parameters:
 
-**Returns:** `object` with fields:
-- `downloadSpeed` - Overall download speed in bytes/sec (string)
-- `uploadSpeed` - Overall upload speed in bytes/sec (string)
-- `numActive` - Number of active downloads (string)
-- `numWaiting` - Number of waiting downloads (string)
-- `numStopped` - Number of stopped downloads (string)
-- `numStoppedTotal` - Total number of stopped downloads in history (string)
+**Common Use Cases:**
 
-**Script call:**
+| Scenario | offset | num | Example |
+|----------|--------|-----|---------|
+| Get first page | `0` | `100` | `python scripts/rpc_client.py aria2.tellStopped 0 100` |
+| Get all items (small queue) | `0` | `1000` | Get up to 1000 items at once |
+| Get recent items only | `-1` | `10` | Last 10 stopped downloads |
+| Paginate large results | `0`, `100`, `200`, ... | `100` | Loop with increasing offset |
+| Quick status check | `0` | `10` | First 10 items for fast response |
+
+**Performance Tips:**
+- **Small `num` (10-20)**: Faster response, good for quick checks or UI updates
+- **Large `num` (100-1000)**: Fewer requests, good for batch processing
+- **Negative offset**: `-1` means start from the end (most recent)
+
+**Example: Get All Stopped Downloads**
 ```bash
-python scripts/rpc_client.py aria2.getGlobalStat
+# Start with offset 0
+python scripts/rpc_client.py aria2.tellStopped 0 100
+# If 100 items returned, get next batch
+python scripts/rpc_client.py aria2.tellStopped 100 100
+# Continue until empty array returned
 ```
 
 ---
@@ -368,6 +390,32 @@ Remove a specific download result from memory.
 ```bash
 python scripts/rpc_client.py aria2.removeDownloadResult 2089b05ecca3d829
 ```
+
+**When to use:**
+- Download is in `complete`, `error`, or `removed` state
+- You want to clear the download record from memory
+- Does not affect the downloaded files on disk
+
+**See also:** Use [aria2.remove](#aria2remove) for active/waiting/paused downloads.
+
+---
+
+## Download Removal Guide
+
+### Choosing the Right Removal Method
+
+| Download Status | Use Method | What it Does |
+|----------------|------------|--------------|
+| `active` | `aria2.remove` | Stops download, then removes from list |
+| `waiting` | `aria2.remove` | Cancels queued download, removes from list |
+| `paused` | `aria2.remove` | Removes paused download from list |
+| `complete` | `aria2.removeDownloadResult` | Clears completed record from memory |
+| `error` | `aria2.removeDownloadResult` | Clears failed record from memory |
+| `removed` | `aria2.removeDownloadResult` | Clears already-removed record from memory |
+
+**Tip:** If you're unsure, try `aria2.remove` first. If it returns an error like "GID is not active", use `aria2.removeDownloadResult` instead.
+
+**Note:** Neither method deletes downloaded files from disk. They only affect aria2's internal download list.
 
 ---
 

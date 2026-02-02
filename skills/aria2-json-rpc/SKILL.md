@@ -58,13 +58,19 @@ python3 scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
 
 ## Common Commands Quick Reference
 
-| User Intent | See Execution Guide Section |
-|-------------|----------------------------|
-| Download a file | Example 1: Download a File |
-| Check status | Example 2: Check Download Status |
-| List downloads | Example 3: List All Downloads |
-| Pause/Resume | Command Mapping Table |
-| Show statistics | Command Mapping Table |
+| User Intent | Command Example |
+|-------------|----------------|
+| Download a file | `python3 scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'` |
+| Check status | `python3 scripts/rpc_client.py aria2.tellStatus <GID>` |
+| List active downloads | `python3 scripts/rpc_client.py aria2.tellActive` |
+| List stopped downloads | `python3 scripts/rpc_client.py aria2.tellStopped 0 100` |
+| Pause download | `python3 scripts/rpc_client.py aria2.pause <GID>` |
+| Resume download | `python3 scripts/rpc_client.py aria2.unpause <GID>` |
+| Show statistics | `python3 scripts/rpc_client.py aria2.getGlobalStat` |
+| Show version | `python3 scripts/rpc_client.py aria2.getVersion` |
+| Purge results | `python3 scripts/rpc_client.py aria2.purgeDownloadResult` |
+
+For detailed usage and more commands, see [execution-guide.md](references/execution-guide.md).
 
 ## Available Scripts
 

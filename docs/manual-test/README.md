@@ -2,13 +2,35 @@
 
 This is an independent test environment for the aria2-json-rpc skill with OpenCode.
 
-**Test Objective**: Validate complete user interaction flow - when users give natural language commands (e.g., "download this file"), the AI agent should understand the intent, call the appropriate Python scripts from the aria2-json-rpc skill, and format responses in a user-friendly way.
+**⚠️ IMPORTANT: This document is located in the `.manual-test/` directory. All commands and paths are relative to `.manual-test/` unless otherwise specified.**
 
-**Dependencies**: python3, aria2 daemon, and the aria2-json-rpc skill.
+**Test Objective**: Validate complete user interaction flow - when users give natural language commands (e.g., "download this file"), the AI agent should:
+1. Understand the intent
+2. Call the appropriate Python scripts using **`python3`** (NOT `python`)
+3. Format responses in a user-friendly way with:
+   - Human-readable file sizes (KB, MB, GB)
+   - Formatted speeds (KB/s, MB/s)
+   - Progress percentages
+
+**Test Environment**: 
+- **Working Directory**: `.manual-test/` (in the project root)
+- **Skill Location**: `.manual-test/.opencode/skills/aria2-json-rpc/`
+- **Configuration**: `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
+
+**Dependencies**: python3 (via `python3` command), aria2 daemon, and the aria2-json-rpc skill.
 
 ## Quick Start
 
-1. **Start aria2 daemon** (if not already running):
+**IMPORTANT**: All operations should be performed from the `.manual-test/` directory.
+
+**CRITICAL**: Tests require `python3` command (NOT `python`) - especially important on macOS where `python` symlink doesn't exist.
+
+1. **Navigate to test environment**:
+   ```bash
+   cd .manual-test
+   ```
+
+2. **Start aria2 daemon** (if not already running):
    ```bash
    aria2c --enable-rpc --rpc-listen-all=true \
      --rpc-listen-port=6800 --rpc-secret=test-secret \
@@ -16,16 +38,17 @@ This is an independent test environment for the aria2-json-rpc skill with OpenCo
      --log=/tmp/aria2-test.log -D
    ```
 
-2. **Load the skill in OpenCode**:
-   - Skill location: `.opencode/skills/aria2-json-rpc/`
-   - Config file: `config.json` (in skill directory: `.opencode/skills/aria2-json-rpc/config.json`)
+3. **Load the skill in OpenCode**:
+   - **Working Directory**: `.manual-test/` (current directory)
+   - **Skill Location**: `.opencode/skills/aria2-json-rpc/` (relative to `.manual-test/`)
+   - **Config File**: `.opencode/skills/aria2-json-rpc/config.json` (relative to `.manual-test/`)
 
-3. **Run tests**:
-   - Follow instructions in `instruct.md`
+4. **Run tests**:
+   - Follow instructions in `instruct.md` (in current directory)
    - Or use OpenCode command: `/test-aria2`
 
-4. **View results**:
-   - Results saved to `results/timestamped_run_*.md`
+5. **View results**:
+   - Results saved to `results/timestamped_run_*.md` (relative to `.manual-test/`)
 
 ## Check aria2 Status
 
@@ -50,11 +73,14 @@ pkill -f "aria2c.*--enable-rpc"
 ## Directory Structure
 
 ```
-./                           (Test environment root)
+.manual-test/                (Test environment root - WORK FROM HERE)
 ├── .opencode/
 │   ├── skills/
 │   │   └── aria2-json-rpc/  (full copy of skill files)
-│   │       └── config.json  (aria2 connection config)
+│   │       ├── scripts/
+│   │       ├── references/
+│   │       ├── SKILL.md
+│   │       └── config.json  (aria2 connection config - CRITICAL)
 │   └── command/
 │       └── test-aria2.md    (OpenCode command)
 ├── instruct.md              (test instructions)
@@ -62,9 +88,17 @@ pkill -f "aria2c.*--enable-rpc"
 └── results/                 (test execution results)
 ```
 
+**Key Points**:
+- All paths are relative to `.manual-test/` directory
+- The `.opencode/` config directory is inside `.manual-test/`
+- Skills are loaded from `.manual-test/.opencode/skills/`
+- Configuration file is at `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
+
 ## Configuration
 
-The `config.json` file in the skill directory (`.opencode/skills/aria2-json-rpc/config.json`) contains aria2 connection settings:
+**⚠️ Configuration File Location**: `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
+
+The `config.json` file contains aria2 connection settings:
 
 ```json
 {
@@ -82,9 +116,9 @@ The `config.json` file in the skill directory (`.opencode/skills/aria2-json-rpc/
 
 ### Milestone 1: Core Operations
 - Download files (single and multiple URLs)
-- Query download status by GID
-- Get global statistics
-- Remove downloads
+- Query download status by GID (with formatted output)
+- Get global statistics (with formatted speeds)
+- Remove downloads (active vs completed)
 
 ### Milestone 2: Batch Operations
 - List active/waiting/stopped downloads
@@ -105,15 +139,30 @@ The `config.json` file in the skill directory (`.opencode/skills/aria2-json-rpc/
 
 ## Using with OpenCode
 
+**CRITICAL**: Make sure you're working from the `.manual-test/` directory!
+
+```bash
+# First, navigate to the test environment
+cd .manual-test
+```
+
 1. **Ensure aria2 daemon is running** (see Quick Start section above)
 
-2. **Load the skill** from `.opencode/skills/aria2-json-rpc/`
+2. **Load the skill**:
+   - Path: `.opencode/skills/aria2-json-rpc/` (relative to `.manual-test/`)
+   - OpenCode will read the skill from this location
 
-3. **Configuration** is automatically loaded from `config.json` in the skill directory
+3. **Configuration**:
+   - File: `.opencode/skills/aria2-json-rpc/config.json` (relative to `.manual-test/`)
+   - Scripts automatically load from this config file
 
-4. **Execute tests** following the instructions in `instruct.md`
+4. **Execute tests**:
+   - Follow instructions in `instruct.md` (in current directory)
+   - All script paths are relative to the skill directory
 
-5. **Record results** in `results/` directory with timestamps
+5. **Record results**:
+   - Save to `results/` directory (relative to `.manual-test/`)
+   - Use timestamped filenames
 
 ## Test Results
 
@@ -144,12 +193,17 @@ tail -f /tmp/aria2-test.log
 ### Tests failing
 
 - Verify aria2 daemon is running (see "Check aria2 Status" above)
-- Check configuration in `config.json` in skill directory (`.opencode/skills/aria2-json-rpc/config.json`) matches aria2 daemon settings
+- Check configuration file: `.manual-test/.opencode/skills/aria2-json-rpc/config.json` matches aria2 daemon settings
 - Review aria2 logs: `cat /tmp/aria2-test.log`
-- Ensure skill is loaded from `.opencode/skills/aria2-json-rpc/`
+- Ensure you're in `.manual-test/` directory when running OpenCode
+- Ensure skill is loaded from `.opencode/skills/aria2-json-rpc/` (relative to `.manual-test/`)
 
 ## Notes
 
+- **Working Directory**: Always work from `.manual-test/` directory
+- **Skill Path**: `.manual-test/.opencode/skills/aria2-json-rpc/`
+- **Config Path**: `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
+- **Python**: Must use `python3` command (NOT `python`) - critical on macOS
 - Test downloads go to `/tmp/aria2-test-downloads/`
 - aria2 logs are saved to `/tmp/aria2-test.log`
 - This environment only depends on: python3, aria2 daemon, and the skill

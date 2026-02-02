@@ -18,10 +18,11 @@ The manual testing system provides an isolated environment for testing the aria2
 ### Key Features
 
 - **Isolated environment**: `.manual-test/` directory is gitignored
-- **Independent operation**: Test environment only depends on python3, aria2 daemon, and skills
+- **Independent operation**: Test environment only depends on python3 (via `python3` command), aria2 daemon, and skills
 - **No project dependency**: Once set up, tests don't require `just` commands or project directory
 - **Real aria2 daemon**: Tests against actual aria2 RPC server
 - **Natural language testing**: Tests use human-readable commands
+- **Data formatting validation**: Tests verify agent formats bytes/speeds/percentages for users
 - **Timestamped results**: Each test run generates a timestamped report
 
 ## Developer Setup (Using `just` commands)
@@ -46,10 +47,10 @@ just manual-test-clean
 ## Test Coverage
 
 ### Milestone 1: Core Operations
-- Download files (single/multiple URLs)
-- Query download status
-- Get global statistics
-- Remove downloads
+- Download files (single/multiple URLs with fallback handling)
+- Query download status (with data formatting)
+- Get global statistics (with speed formatting)
+- Remove downloads (active vs completed)
 
 ### Milestone 2: Batch Operations
 - List downloads (active/waiting/stopped)
@@ -102,11 +103,14 @@ docs/manual-test/          (Source documentation - for developers)
   ├── instruct.md          (copied to .manual-test/)
   └── test-aria2.md        (copied to .manual-test/.opencode/command/)
           ↓ (copied by just manual-test-setup)
-.manual-test/              (Independent test environment)
+.manual-test/              (Independent test environment - WORK FROM HERE)
   ├── .opencode/
   │   ├── skills/
   │   │   └── aria2-json-rpc/  (full copy of skills/aria2-json-rpc/)
-  │   │       └── config.json  (aria2 connection config)
+  │   │       ├── scripts/
+  │   │       ├── references/
+  │   │       ├── SKILL.md
+  │   │       └── config.json  (aria2 connection config - CRITICAL)
   │   └── command/
   │       └── test-aria2.md    (copy)
   ├── instruct.md            (test instructions - copy)
@@ -115,12 +119,20 @@ docs/manual-test/          (Source documentation - for developers)
       └── timestamped_run_*.md
 ```
 
+**Key Points:**
+- All test operations must be performed from `.manual-test/` directory
+- The `.opencode/` directory is INSIDE `.manual-test/`
+- Skills are loaded from `.manual-test/.opencode/skills/`
+- Configuration is at `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
+
 ## What Gets Copied
 
 - **Full copy**: `.opencode/skills/aria2-json-rpc/` (isolated from source, changes require re-running setup)
 - **Copied**: `README.md`, `instruct.md`, `test-aria2.md` (independent copies)
-- **Created in skill directory**: `config.json` (created in `.opencode/skills/aria2-json-rpc/`)
+- **Created**: `config.json` in `.manual-test/.opencode/skills/aria2-json-rpc/` directory
 - **Not copied**: `SETUP-GUIDE.md` (developer-only documentation)
+
+**Important**: The config file is created at `.manual-test/.opencode/skills/aria2-json-rpc/config.json`
 
 ## Available `just` Commands
 
@@ -160,7 +172,7 @@ Once the environment is set up, you can run tests independently:
 
 ## Configuration
 
-Default test configuration in `.manual-test/.opencode/skills/aria2-json-rpc/config.json`:
+Default test configuration created at `.manual-test/.opencode/skills/aria2-json-rpc/config.json`:
 
 ```json
 {
@@ -184,7 +196,7 @@ Default test configuration in `.manual-test/.opencode/skills/aria2-json-rpc/conf
 - `.manual-test/` is gitignored
 - Test downloads go to `/tmp/aria2-test-downloads/`
 - aria2 logs saved to `/tmp/aria2-test.log`
-- Once set up, tests only depend on: python3, aria2 daemon, and the skill
+- Once set up, tests only depend on: python3 (via `python3` command), aria2 daemon, and the skill
 
 ## Related Documentation
 
