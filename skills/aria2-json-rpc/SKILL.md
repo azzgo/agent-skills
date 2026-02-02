@@ -23,11 +23,13 @@ This skill enables you to control aria2 download manager through natural languag
 
 **✅ ALWAYS use the Python scripts in the `scripts/` directory.**
 
+**⚠️ IMPORTANT: Use `python3` command, NOT `python`** (especially on macOS where `python` symlink doesn't exist)
+
 ### Quick Start
 
 1. **Identify** what the user wants (download, status, pause, etc.)
 2. **Look up** the appropriate command in the execution guide
-3. **Execute** the Python script with the Bash tool
+3. **Execute** the Python script with the Bash tool using `python3`
 4. **Format** the output in a user-friendly way
 
 ### Example
@@ -36,7 +38,7 @@ This skill enables you to control aria2 download manager through natural languag
 
 **You execute:**
 ```bash
-python scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
+python3 scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
 ```
 
 **You respond:** "✓ Download started! GID: 2089b05ecca3d829"
@@ -85,7 +87,7 @@ Scripts automatically load configuration from:
 ## Key Principles
 
 1. **Never** construct JSON-RPC requests manually
-2. **Always** call Python scripts via Bash tool
+2. **Always** call Python scripts via Bash tool using `python3` (not `python`)
 3. **Parse** script output and format for users
 4. **Refer to** execution-guide.md when unsure
 

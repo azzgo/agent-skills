@@ -2,7 +2,23 @@
 
 Common issues and solutions when using the aria2-json-rpc skill.
 
+**⚠️ NOTE: All commands use `python3`, not `python`** (especially important on macOS where `python` symlink doesn't exist)
+
 ## Script Execution Errors
+
+### Python Command Not Found
+
+**Error:** `command not found: python`
+
+**Cause:** On macOS and some Linux systems, only `python3` is available
+
+**Solution:**
+```bash
+# Always use python3
+python3 scripts/rpc_client.py aria2.getVersion
+
+# NOT python (this will fail on macOS)
+```
 
 ### File Not Found
 
@@ -17,12 +33,12 @@ Common issues and solutions when using the aria2-json-rpc skill.
 1. Change to the skill directory first:
    ```bash
    cd /path/to/skills/aria2-json-rpc
-   python scripts/rpc_client.py aria2.getVersion
+   python3 scripts/rpc_client.py aria2.getVersion
    ```
 
 2. Or use absolute path:
    ```bash
-   python /full/path/to/skills/aria2-json-rpc/scripts/rpc_client.py aria2.getVersion
+   python3 /full/path/to/skills/aria2-json-rpc/scripts/rpc_client.py aria2.getVersion
    ```
 
 3. Verify the script exists:
@@ -37,8 +53,8 @@ Common issues and solutions when using the aria2-json-rpc skill.
 **Solution:**
 ```bash
 chmod +x scripts/rpc_client.py
-# Or run with python explicitly
-python scripts/rpc_client.py aria2.getVersion
+# Or run with python3 explicitly
+python3 scripts/rpc_client.py aria2.getVersion
 ```
 
 ## Connection Errors
@@ -69,13 +85,13 @@ python scripts/rpc_client.py aria2.getVersion
 
 3. **Test connection:**
    ```bash
-   python scripts/rpc_client.py aria2.getVersion
+   python3 scripts/rpc_client.py aria2.getVersion
    ```
 
 4. **Verify configuration:**
    ```bash
    # Check what host/port the scripts are using
-   python scripts/config_loader.py
+   python3 scripts/config_loader.py
    ```
 
 5. **Try with curl:**
@@ -135,13 +151,13 @@ python scripts/rpc_client.py aria2.getVersion
 
 4. **Verify configuration loaded correctly:**
    ```bash
-   python scripts/config_loader.py
+   python3 scripts/config_loader.py
    # Should show: secret: ****** (hidden)
    ```
 
 5. **Note:** `system.listMethods` doesn't require authentication - use it to test:
    ```bash
-   python scripts/rpc_client.py system.listMethods
+   python3 scripts/rpc_client.py system.listMethods
    ```
 
 ## Parameter Errors
@@ -160,10 +176,10 @@ python scripts/rpc_client.py aria2.getVersion
 1. **Use single quotes around JSON arrays:**
    ```bash
    # Correct
-   python scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
+   python3 scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
    
    # Wrong - bash will interpret the quotes
-   python scripts/rpc_client.py aria2.addUri ["http://example.com/file.zip"]
+   python3 scripts/rpc_client.py aria2.addUri ["http://example.com/file.zip"]
    ```
 
 2. **Don't forget the array brackets:**
@@ -177,7 +193,7 @@ python scripts/rpc_client.py aria2.getVersion
 
 3. **Escape quotes in complex JSON:**
    ```bash
-   python scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 '{"max-download-limit":"1M"}'
+   python3 scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 '{"max-download-limit":"1M"}'
    ```
 
 ### Wrong Number of Parameters
@@ -189,13 +205,13 @@ python scripts/rpc_client.py aria2.getVersion
 **Examples:**
 ```bash
 # tellWaiting needs offset and num
-python scripts/rpc_client.py aria2.tellWaiting 0 100
+python3 scripts/rpc_client.py aria2.tellWaiting 0 100
 
 # tellStatus needs only GID
-python scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
 
 # getGlobalStat needs no parameters
-python scripts/rpc_client.py aria2.getGlobalStat
+python3 scripts/rpc_client.py aria2.getGlobalStat
 ```
 
 ## Download Errors
@@ -221,12 +237,12 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 2. **Search in stopped downloads:**
    ```bash
-   python scripts/rpc_client.py aria2.tellStopped 0 100
+   python3 scripts/rpc_client.py aria2.tellStopped 0 100
    ```
 
 3. **List all current downloads:**
    ```bash
-   python scripts/examples/list-downloads.py
+   python3 scripts/examples/list-downloads.py
    ```
 
 4. **Note:** aria2 automatically purges old results based on its configuration
@@ -244,7 +260,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 1. **Check current status:**
    ```bash
-   python scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
+   python3 scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
    ```
 
 2. **Status field shows the state:**
@@ -285,7 +301,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 2. **Verify aria2 supports the protocol:**
    ```bash
-   python scripts/rpc_client.py aria2.getVersion
+   python3 scripts/rpc_client.py aria2.getVersion
    # Check "enabledFeatures" array
    ```
 
@@ -307,19 +323,19 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 1. **Increase connections per server:**
    ```bash
-   python scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 \
+   python3 scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 \
      '{"max-connection-per-server":"16"}'
    ```
 
 2. **Enable split downloading:**
    ```bash
-   python scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 \
+   python3 scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 \
      '{"split":"10"}'
    ```
 
 3. **Adjust concurrent downloads:**
    ```bash
-   python scripts/rpc_client.py aria2.changeGlobalOption \
+   python3 scripts/rpc_client.py aria2.changeGlobalOption \
      '{"max-concurrent-downloads":"3"}'
    ```
 
@@ -342,7 +358,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 1. **Check aria2 server load:**
    ```bash
-   python scripts/rpc_client.py aria2.getGlobalStat
+   python3 scripts/rpc_client.py aria2.getGlobalStat
    # Check numActive - too many concurrent downloads?
    ```
 
@@ -356,7 +372,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 3. **Use helper scripts instead of multiple calls:**
    ```bash
    # Instead of multiple tellStatus calls
-   python scripts/examples/list-downloads.py
+   python3 scripts/examples/list-downloads.py
    ```
 
 ## Configuration Issues
@@ -369,7 +385,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 1. **Check JSON syntax:**
    ```bash
-   python -m json.tool config.json
+   python3 -m json.tool config.json
    ```
 
 2. **Verify file location:**
@@ -385,7 +401,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 4. **Test configuration loading:**
    ```bash
-   python scripts/config_loader.py
+   python3 scripts/config_loader.py
    ```
 
 ### Secret Token Not Working
@@ -426,17 +442,17 @@ python scripts/rpc_client.py aria2.getGlobalStat
 
 1. **Check script dependencies:**
    ```bash
-   python --version  # Should be 3.6+
+   python3 --version  # Should be 3.6+
    ```
 
 2. **Run with verbose mode if available:**
    ```bash
-   python scripts/examples/list-downloads.py --verbose
+   python3 scripts/examples/list-downloads.py --verbose
    ```
 
 3. **Check for errors in stderr:**
    ```bash
-   python scripts/examples/list-downloads.py 2>&1 | grep -i error
+   python3 scripts/examples/list-downloads.py 2>&1 | grep -i error
    ```
 
 ### Import Errors
@@ -449,7 +465,7 @@ python scripts/rpc_client.py aria2.getGlobalStat
    ```bash
    # Scripts should be run from skill directory or with proper paths
    cd skills/aria2-json-rpc
-   python scripts/examples/list-downloads.py
+   python3 scripts/examples/list-downloads.py
    ```
 
 2. **Check script imports:**
@@ -474,7 +490,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 ```bash
 # Get full traceback
-python scripts/rpc_client.py aria2.getGlobalStat 2>&1 | tee error.log
+python3 scripts/rpc_client.py aria2.getGlobalStat 2>&1 | tee error.log
 ```
 
 ### Test aria2 Directly
@@ -488,7 +504,7 @@ curl -X POST http://localhost:6800/jsonrpc \
     "id": "test",
     "method": "aria2.getVersion",
     "params": []
-  }' | python -m json.tool
+  }' | python3 -m json.tool
 ```
 
 ## Common Workflow Issues
@@ -503,10 +519,10 @@ curl -X POST http://localhost:6800/jsonrpc \
 **Check:**
 ```bash
 # Global stats
-python scripts/rpc_client.py aria2.getGlobalStat
+python3 scripts/rpc_client.py aria2.getGlobalStat
 
 # Download options
-python scripts/rpc_client.py aria2.getOption <GID>
+python3 scripts/rpc_client.py aria2.getOption <GID>
 ```
 
 ### Cannot Resume Paused Download

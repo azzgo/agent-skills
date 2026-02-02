@@ -53,7 +53,7 @@ pkill -f "aria2c.*--enable-rpc"
 ./                           (Test environment root)
 ├── .opencode/
 │   ├── skills/
-│   │   └── aria2-json-rpc/  (skill files)
+│   │   └── aria2-json-rpc/  (full copy of skill files)
 │   │       └── config.json  (aria2 connection config)
 │   └── command/
 │       └── test-aria2.md    (OpenCode command)
@@ -153,4 +153,5 @@ tail -f /tmp/aria2-test.log
 - Test downloads go to `/tmp/aria2-test-downloads/`
 - aria2 logs are saved to `/tmp/aria2-test.log`
 - This environment only depends on: python3, aria2 daemon, and the skill
+- The skill directory is a full copy - to update the skill, re-run the setup command from the project root
 - No external project dependencies required during test execution

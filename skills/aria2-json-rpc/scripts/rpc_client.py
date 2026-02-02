@@ -601,7 +601,20 @@ class Aria2RpcClient:
 
 
 def main():
-    """Test the RPC client."""
+    """
+    Command-line interface for aria2 RPC client.
+
+    Usage:
+        python rpc_client.py                              # Test connection
+        python rpc_client.py <method>                     # Call method with no params
+        python rpc_client.py <method> <param1> ...        # Call method with params
+
+    Examples:
+        python rpc_client.py aria2.getGlobalStat
+        python rpc_client.py aria2.tellStatus 2089b05ecca3d829
+        python rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
+        python rpc_client.py aria2.tellWaiting 0 100
+    """
     import sys
     import os
 
@@ -609,40 +622,62 @@ def main():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from config_loader import Aria2Config
 
-    print("Testing aria2 JSON-RPC client...")
-    print()
-
     try:
         # Load configuration
         config_loader = Aria2Config()
         config = config_loader.load()
 
-        print("✓ Configuration loaded")
-        print(f"  Endpoint: {config_loader.get_endpoint_url()}")
-        print()
-
         # Create RPC client
         client = Aria2RpcClient(config)
 
-        # Test connection with getGlobalStat
-        print("Testing connection with aria2.getGlobalStat...")
-        stats = client.get_global_stat()
+        # Parse command-line arguments
+        if len(sys.argv) == 1:
+            # No arguments: test connection with getGlobalStat
+            print("Testing aria2 JSON-RPC client...")
+            print()
+            print("✓ Configuration loaded")
+            print(f"  Endpoint: {config_loader.get_endpoint_url()}")
+            print()
+            print("Testing connection with aria2.getGlobalStat...")
+            stats = client.get_global_stat()
+            print("✓ Connection successful")
+            print()
+            print("Global Statistics:")
+            for key, value in stats.items():
+                print(f"  {key}: {value}")
+        else:
+            # Arguments provided: call specified method
+            method = sys.argv[1]
 
-        print("✓ Connection successful")
-        print()
-        print("Global Statistics:")
-        for key, value in stats.items():
-            print(f"  {key}: {value}")
+            # Parse parameters
+            params = []
+            for arg in sys.argv[2:]:
+                # Try to parse as JSON first (for arrays/objects)
+                try:
+                    params.append(json.loads(arg))
+                except json.JSONDecodeError:
+                    # Not JSON, try as integer
+                    try:
+                        params.append(int(arg))
+                    except ValueError:
+                        # Not an integer, use as string
+                        params.append(arg)
+
+            # Call the method
+            result = client.call(method, params)
+
+            # Print result as JSON
+            print(json.dumps(result, indent=2, ensure_ascii=False))
 
     except Aria2RpcError as e:
-        print(f"✗ aria2 error: {e}")
-        print(f"  Code: {e.code}")
-        print(f"  Message: {e.message}")
+        print(f"✗ aria2 error: {e}", file=sys.stderr)
+        print(f"  Code: {e.code}", file=sys.stderr)
+        print(f"  Message: {e.message}", file=sys.stderr)
         if e.data:
-            print(f"  Data: {e.data}")
+            print(f"  Data: {e.data}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"✗ Error: {e}")
+        print(f"✗ Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 

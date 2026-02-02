@@ -105,7 +105,7 @@ docs/manual-test/          (Source documentation - for developers)
 .manual-test/              (Independent test environment)
   ├── .opencode/
   │   ├── skills/
-  │   │   └── aria2-json-rpc/  (symlink to ../../skills/aria2-json-rpc)
+  │   │   └── aria2-json-rpc/  (full copy of skills/aria2-json-rpc/)
   │   │       └── config.json  (aria2 connection config)
   │   └── command/
   │       └── test-aria2.md    (copy)
@@ -115,9 +115,9 @@ docs/manual-test/          (Source documentation - for developers)
       └── timestamped_run_*.md
 ```
 
-## What Gets Copied vs. Symlinked
+## What Gets Copied
 
-- **Symlinked**: `.opencode/skills/aria2-json-rpc/` (changes reflected immediately)
+- **Full copy**: `.opencode/skills/aria2-json-rpc/` (isolated from source, changes require re-running setup)
 - **Copied**: `README.md`, `instruct.md`, `test-aria2.md` (independent copies)
 - **Created in skill directory**: `config.json` (created in `.opencode/skills/aria2-json-rpc/`)
 - **Not copied**: `SETUP-GUIDE.md` (developer-only documentation)
@@ -174,9 +174,9 @@ Default test configuration in `.manual-test/.opencode/skills/aria2-json-rpc/conf
 
 ## Maintenance
 
-- **Edit source files** in `docs/manual-test/` directory
+- **Edit source files** in `docs/manual-test/` or `skills/aria2-json-rpc/` directories
 - **Run setup** with `just manual-test-setup` to update `.manual-test/` copies
-- **Skill changes** are reflected immediately via symlink
+- **Skill changes** require re-running `just manual-test-setup` to copy updated files
 - **Test results** are generated locally in `.manual-test/results/`
 
 ## Notes
