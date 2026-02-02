@@ -43,3 +43,6 @@ Thumbs.db
 *.log
 *.tmp
 .env
+
+# Manual testing
+.manual-test/
