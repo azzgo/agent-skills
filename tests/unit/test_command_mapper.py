@@ -194,6 +194,186 @@ class TestCommandMapper(unittest.TestCase):
         method, params = result
         self.assertEqual(method, "aria2.addUri")
 
+    # Milestone 2 command tests
+
+    def test_pause_download(self):
+        """Test parsing pause download command."""
+        gid = "2089b05ecca3d829"
+        result = self.mapper.map_command(f"pause download {gid}")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.pause")
+        self.assertEqual(params[0], gid)
+
+    def test_pause_all_downloads(self):
+        """Test parsing pause all downloads command."""
+        result = self.mapper.map_command("pause all downloads")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.pauseAll")
+        self.assertEqual(len(params), 0)
+
+    def test_unpause_download(self):
+        """Test parsing unpause download command."""
+        gid = "1234567890abcdef"
+        result = self.mapper.map_command(f"unpause download {gid}")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.unpause")
+        self.assertEqual(params[0], gid)
+
+    def test_resume_download(self):
+        """Test parsing resume download command (synonym for unpause)."""
+        gid = "2089b05ecca3d829"
+        result = self.mapper.map_command(f"resume GID {gid}")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.unpause")
+        self.assertEqual(params[0], gid)
+
+    def test_resume_all_downloads(self):
+        """Test parsing resume all downloads command."""
+        result = self.mapper.map_command("resume all tasks")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.unpauseAll")
+        self.assertEqual(len(params), 0)
+
+    def test_show_active_downloads(self):
+        """Test parsing show active downloads command."""
+        result = self.mapper.map_command("show active downloads")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.tellActive")
+        self.assertEqual(len(params), 0)
+
+    def test_whats_currently_downloading(self):
+        """Test parsing 'what's currently downloading' command."""
+        result = self.mapper.map_command("what's currently downloading")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.tellActive")
+
+    def test_list_waiting_downloads(self):
+        """Test parsing list waiting downloads command."""
+        result = self.mapper.map_command("list waiting downloads")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.tellWaiting")
+        self.assertEqual(params[0], 0)  # offset
+        self.assertEqual(params[1], 100)  # num
+
+    def test_show_stopped_downloads(self):
+        """Test parsing show stopped downloads command."""
+        result = self.mapper.map_command("show stopped downloads")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.tellStopped")
+        self.assertEqual(params[0], 0)
+        self.assertEqual(params[1], 100)
+
+    def test_get_options(self):
+        """Test parsing get options command."""
+        gid = "2089b05ecca3d829"
+        result = self.mapper.map_command(f"get options for GID {gid}")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.getOption")
+        self.assertEqual(params[0], gid)
+
+    def test_show_global_options(self):
+        """Test parsing show global options command."""
+        result = self.mapper.map_command("show global options")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.getGlobalOption")
+        self.assertEqual(len(params), 0)
+
+    def test_purge_download_results(self):
+        """Test parsing purge download results command."""
+        result = self.mapper.map_command("purge download results")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.purgeDownloadResult")
+        self.assertEqual(len(params), 0)
+
+    def test_clear_download_history(self):
+        """Test parsing clear download history command (synonym for purge)."""
+        result = self.mapper.map_command("clear download history")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.purgeDownloadResult")
+
+    def test_remove_download_result(self):
+        """Test parsing remove download result command."""
+        gid = "2089b05ecca3d829"
+        result = self.mapper.map_command(f"remove download result {gid}")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.removeDownloadResult")
+        self.assertEqual(params[0], gid)
+
+    def test_get_version(self):
+        """Test parsing get version command."""
+        result = self.mapper.map_command("show aria2 version")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "aria2.getVersion")
+        self.assertEqual(len(params), 0)
+
+    def test_list_methods(self):
+        """Test parsing list methods command."""
+        result = self.mapper.map_command("list available methods")
+
+        self.assertIsNotNone(result)
+        method, params = result
+        self.assertEqual(method, "system.listMethods")
+        self.assertEqual(len(params), 0)
+
+    def test_milestone2_supported_commands(self):
+        """Test get_supported_commands includes Milestone 2 methods."""
+        commands = self.mapper.get_supported_commands()
+
+        # Check Milestone 2 methods are present
+        milestone2_methods = [
+            "pause",
+            "pause_all",
+            "unpause",
+            "unpause_all",
+            "tell_active",
+            "tell_waiting",
+            "tell_stopped",
+            "get_option",
+            "get_global_option",
+            "purge_download_result",
+            "remove_download_result",
+            "get_version",
+            "list_methods",
+        ]
+
+        for method in milestone2_methods:
+            self.assertIn(
+                method, commands, f"Method {method} should be in supported commands"
+            )
+            self.assertTrue(
+                len(commands[method]) > 0, f"Method {method} should have examples"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

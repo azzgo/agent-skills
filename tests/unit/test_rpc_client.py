@@ -195,6 +195,196 @@ class TestAria2RpcClient(unittest.TestCase):
 
         self.assertEqual(context.exception.code, 1)
 
+    # Milestone 2 method tests
+
+    @patch("urllib.request.urlopen")
+    def test_pause_method(self, mock_urlopen):
+        """Test pause method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "2089b05ecca3d829"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        gid = self.client.pause("2089b05ecca3d829")
+        self.assertEqual(gid, "2089b05ecca3d829")
+
+    @patch("urllib.request.urlopen")
+    def test_pause_all_method(self, mock_urlopen):
+        """Test pauseAll method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.pause_all()
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_unpause_method(self, mock_urlopen):
+        """Test unpause method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "2089b05ecca3d829"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        gid = self.client.unpause("2089b05ecca3d829")
+        self.assertEqual(gid, "2089b05ecca3d829")
+
+    @patch("urllib.request.urlopen")
+    def test_unpause_all_method(self, mock_urlopen):
+        """Test unpauseAll method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.unpause_all()
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_tell_active_method(self, mock_urlopen):
+        """Test tellActive method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": [{"gid": "2089b05ecca3d829", "status": "active"}]}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.tell_active()
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["gid"], "2089b05ecca3d829")
+
+    @patch("urllib.request.urlopen")
+    def test_tell_waiting_method(self, mock_urlopen):
+        """Test tellWaiting method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": [{"gid": "abc123def456", "status": "waiting"}]}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.tell_waiting(0, 100)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["gid"], "abc123def456")
+
+    @patch("urllib.request.urlopen")
+    def test_tell_stopped_method(self, mock_urlopen):
+        """Test tellStopped method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": [{"gid": "123456789012", "status": "complete"}]}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.tell_stopped(0, 50)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["status"], "complete")
+
+    @patch("urllib.request.urlopen")
+    def test_get_option_method(self, mock_urlopen):
+        """Test getOption method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": {"max-download-limit": "0"}}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.get_option("2089b05ecca3d829")
+        self.assertIn("max-download-limit", result)
+
+    @patch("urllib.request.urlopen")
+    def test_change_option_method(self, mock_urlopen):
+        """Test changeOption method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.change_option(
+            "2089b05ecca3d829", {"max-download-limit": "1M"}
+        )
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_get_global_option_method(self, mock_urlopen):
+        """Test getGlobalOption method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": {"max-concurrent-downloads": "5"}}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.get_global_option()
+        self.assertIn("max-concurrent-downloads", result)
+
+    @patch("urllib.request.urlopen")
+    def test_change_global_option_method(self, mock_urlopen):
+        """Test changeGlobalOption method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.change_global_option({"max-concurrent-downloads": "10"})
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_purge_download_result_method(self, mock_urlopen):
+        """Test purgeDownloadResult method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.purge_download_result()
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_remove_download_result_method(self, mock_urlopen):
+        """Test removeDownloadResult method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": "OK"}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.remove_download_result("2089b05ecca3d829")
+        self.assertEqual(result, "OK")
+
+    @patch("urllib.request.urlopen")
+    def test_get_version_method(self, mock_urlopen):
+        """Test getVersion method."""
+        mock_response = Mock()
+        mock_response.read.return_value = (
+            b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": {"version": "1.36.0"}}'
+        )
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.get_version()
+        self.assertIn("version", result)
+
+    @patch("urllib.request.urlopen")
+    def test_list_methods_method(self, mock_urlopen):
+        """Test system.listMethods method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": ["aria2.addUri", "aria2.pause"]}'
+        mock_urlopen.return_value = mock_response
+
+        result = self.client.list_methods()
+        self.assertIn("aria2.addUri", result)
+        self.assertIn("aria2.pause", result)
+
+    @patch("urllib.request.urlopen")
+    def test_multicall_method(self, mock_urlopen):
+        """Test system.multicall method."""
+        mock_response = Mock()
+        mock_response.read.return_value = b'{"jsonrpc": "2.0", "id": "aria2-rpc-1", "result": [["2089b05ecca3d829"], ["OK"]]}'
+        mock_urlopen.return_value = mock_response
+
+        calls = [
+            {"methodName": "aria2.tellStatus", "params": ["2089b05ecca3d829"]},
+            {"methodName": "aria2.pause", "params": ["2089b05ecca3d829"]},
+        ]
+        result = self.client.multicall(calls)
+        self.assertEqual(len(result), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -47,6 +47,87 @@ class CommandMapper:
             r"^what'?s\s+downloading\??$",
             r"^how\s+many\s+(?:downloads?|tasks?)\??$",
         ],
+        # Milestone 2: pause patterns
+        "pause": [
+            r"^pause\s+(?:download\s+)?(?:gid\s+)?([a-f0-9]{16})",
+            r"^stop\s+(?:download\s+)?(?:gid\s+)?([a-f0-9]{16})",
+        ],
+        # Milestone 2: pauseAll patterns
+        "pause_all": [
+            r"^pause\s+all\s+(?:downloads?|tasks?)",
+            r"^stop\s+all\s+(?:downloads?|tasks?)",
+            r"^pause\s+everything",
+        ],
+        # Milestone 2: unpause patterns
+        "unpause": [
+            r"^(?:unpause|resume)\s+(?:download\s+)?(?:gid\s+)?([a-f0-9]{16})",
+            r"^continue\s+(?:download\s+)?(?:gid\s+)?([a-f0-9]{16})",
+        ],
+        # Milestone 2: unpauseAll patterns
+        "unpause_all": [
+            r"^(?:unpause|resume)\s+all\s+(?:downloads?|tasks?)",
+            r"^continue\s+all\s+(?:downloads?|tasks?)",
+            r"^(?:unpause|resume)\s+everything",
+        ],
+        # Milestone 2: tellActive patterns
+        "tell_active": [
+            r"^(?:show|list|get)\s+active\s+(?:downloads?|tasks?)",
+            r"^what'?s\s+(?:currently\s+)?(?:downloading|active)",
+            r"^active\s+(?:downloads?|tasks?)",
+        ],
+        # Milestone 2: tellWaiting patterns
+        "tell_waiting": [
+            r"^(?:show|list|get)\s+waiting\s+(?:downloads?|tasks?)",
+            r"^(?:show|list|get)\s+queued?\s+(?:downloads?|tasks?)",
+            r"^waiting\s+(?:downloads?|tasks?)",
+        ],
+        # Milestone 2: tellStopped patterns
+        "tell_stopped": [
+            r"^(?:show|list|get)\s+stopped\s+(?:downloads?|tasks?)",
+            r"^(?:show|list|get)\s+(?:completed?|finished)\s+(?:downloads?|tasks?)",
+            r"^stopped\s+(?:downloads?|tasks?)",
+        ],
+        # Milestone 2: getOption patterns
+        "get_option": [
+            r"^(?:show|get)\s+options?\s+(?:for\s+)?(?:gid\s+)?([a-f0-9]{16})",
+            r"^options?\s+(?:of|for)\s+(?:gid\s+)?([a-f0-9]{16})",
+        ],
+        # Milestone 2: changeOption patterns - complex, need GID + options
+        "change_option": [
+            r"^(?:change|set|modify)\s+options?\s+(?:for\s+)?(?:gid\s+)?([a-f0-9]{16})",
+        ],
+        # Milestone 2: getGlobalOption patterns
+        "get_global_option": [
+            r"^(?:show|get)\s+global\s+options?",
+            r"^global\s+options?",
+        ],
+        # Milestone 2: changeGlobalOption patterns
+        "change_global_option": [
+            r"^(?:change|set|modify)\s+global\s+options?",
+        ],
+        # Milestone 2: purgeDownloadResult patterns
+        "purge_download_result": [
+            r"^purge\s+(?:download\s+)?(?:results?|history)",
+            r"^clear\s+(?:download\s+)?(?:results?|history)",
+            r"^clean\s+up\s+(?:completed?|finished)\s+downloads?",
+        ],
+        # Milestone 2: removeDownloadResult patterns
+        "remove_download_result": [
+            r"^remove\s+(?:download\s+)?result\s+(?:for\s+)?(?:gid\s+)?([a-f0-9]{16})",
+            r"^clear\s+(?:download\s+)?result\s+(?:for\s+)?(?:gid\s+)?([a-f0-9]{16})",
+        ],
+        # Milestone 2: getVersion patterns
+        "get_version": [
+            r"^(?:show|get)\s+(?:aria2\s+)?version",
+            r"^version\s+info(?:rmation)?",
+            r"^what\s+version\s+of\s+aria2",
+        ],
+        # Milestone 2: listMethods patterns
+        "list_methods": [
+            r"^(?:show|list|get)\s+(?:available\s+)?(?:rpc\s+)?methods?",
+            r"^what\s+methods?\s+are\s+available",
+            r"^available\s+(?:rpc\s+)?methods?",
+        ],
     }
 
     def __init__(self):
@@ -89,10 +170,27 @@ class CommandMapper:
     def _method_to_rpc(self, method: str) -> str:
         """Convert internal method name to aria2 RPC method name."""
         mapping = {
+            # Milestone 1
             "add_uri": "aria2.addUri",
             "tell_status": "aria2.tellStatus",
             "remove": "aria2.remove",
             "get_global_stat": "aria2.getGlobalStat",
+            # Milestone 2
+            "pause": "aria2.pause",
+            "pause_all": "aria2.pauseAll",
+            "unpause": "aria2.unpause",
+            "unpause_all": "aria2.unpauseAll",
+            "tell_active": "aria2.tellActive",
+            "tell_waiting": "aria2.tellWaiting",
+            "tell_stopped": "aria2.tellStopped",
+            "get_option": "aria2.getOption",
+            "change_option": "aria2.changeOption",
+            "get_global_option": "aria2.getGlobalOption",
+            "change_global_option": "aria2.changeGlobalOption",
+            "purge_download_result": "aria2.purgeDownloadResult",
+            "remove_download_result": "aria2.removeDownloadResult",
+            "get_version": "aria2.getVersion",
+            "list_methods": "system.listMethods",
         }
         return mapping.get(method, method)
 
@@ -108,10 +206,10 @@ class CommandMapper:
         Returns:
             List of parameters for RPC method
         """
+        # Milestone 1 methods
         if method == "add_uri":
             # Extract URIs (single URI from match group)
             uri = match.group(1).strip()
-
             # Return as array of URIs (aria2.addUri expects array of URIs)
             return [[uri]]
 
@@ -126,6 +224,72 @@ class CommandMapper:
             return [gid]
 
         elif method == "get_global_stat":
+            # No parameters needed
+            return []
+
+        # Milestone 2 methods
+        elif method == "pause":
+            # Extract GID
+            gid = match.group(1).strip()
+            return [gid]
+
+        elif method == "pause_all":
+            # No parameters needed
+            return []
+
+        elif method == "unpause":
+            # Extract GID
+            gid = match.group(1).strip()
+            return [gid]
+
+        elif method == "unpause_all":
+            # No parameters needed
+            return []
+
+        elif method == "tell_active":
+            # No parameters needed (can optionally add keys parameter)
+            return []
+
+        elif method == "tell_waiting":
+            # Default pagination: offset=0, num=100
+            return [0, 100]
+
+        elif method == "tell_stopped":
+            # Default pagination: offset=0, num=100
+            return [0, 100]
+
+        elif method == "get_option":
+            # Extract GID
+            gid = match.group(1).strip()
+            return [gid]
+
+        elif method == "change_option":
+            # Extract GID (options would need to be provided separately)
+            gid = match.group(1).strip()
+            return [gid, {}]  # Empty options dict as placeholder
+
+        elif method == "get_global_option":
+            # No parameters needed
+            return []
+
+        elif method == "change_global_option":
+            # Empty options dict as placeholder
+            return [{}]
+
+        elif method == "purge_download_result":
+            # No parameters needed
+            return []
+
+        elif method == "remove_download_result":
+            # Extract GID
+            gid = match.group(1).strip()
+            return [gid]
+
+        elif method == "get_version":
+            # No parameters needed
+            return []
+
+        elif method == "list_methods":
             # No parameters needed
             return []
 
@@ -158,6 +322,7 @@ class CommandMapper:
             Dictionary mapping method names to example commands
         """
         return {
+            # Milestone 1
             "add_uri": [
                 "download http://example.com/file.zip",
                 "add download https://example.com/file.iso",
@@ -178,6 +343,77 @@ class CommandMapper:
                 "get global statistics",
                 "what's downloading",
                 "how many downloads",
+            ],
+            # Milestone 2
+            "pause": [
+                "pause download 2089b05ecca3d829",
+                "pause GID 2089b05ecca3d829",
+                "stop download 2089b05ecca3d829",
+            ],
+            "pause_all": [
+                "pause all downloads",
+                "stop all tasks",
+                "pause everything",
+            ],
+            "unpause": [
+                "unpause download 2089b05ecca3d829",
+                "resume GID 2089b05ecca3d829",
+                "continue download 2089b05ecca3d829",
+            ],
+            "unpause_all": [
+                "unpause all downloads",
+                "resume all tasks",
+                "continue everything",
+            ],
+            "tell_active": [
+                "show active downloads",
+                "list active tasks",
+                "what's currently downloading",
+            ],
+            "tell_waiting": [
+                "show waiting downloads",
+                "list queued tasks",
+                "waiting downloads",
+            ],
+            "tell_stopped": [
+                "show stopped downloads",
+                "list completed tasks",
+                "stopped downloads",
+            ],
+            "get_option": [
+                "show options for GID 2089b05ecca3d829",
+                "get options 2089b05ecca3d829",
+            ],
+            "change_option": [
+                "change options for GID 2089b05ecca3d829",
+                "set options 2089b05ecca3d829",
+            ],
+            "get_global_option": [
+                "show global options",
+                "get global options",
+            ],
+            "change_global_option": [
+                "change global options",
+                "set global options",
+            ],
+            "purge_download_result": [
+                "purge download results",
+                "clear download history",
+                "clean up completed downloads",
+            ],
+            "remove_download_result": [
+                "remove download result 2089b05ecca3d829",
+                "clear result for GID 2089b05ecca3d829",
+            ],
+            "get_version": [
+                "show aria2 version",
+                "get version",
+                "what version of aria2",
+            ],
+            "list_methods": [
+                "show available methods",
+                "list RPC methods",
+                "what methods are available",
             ],
         }
 

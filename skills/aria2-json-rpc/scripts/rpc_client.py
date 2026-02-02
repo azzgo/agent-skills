@@ -295,6 +295,202 @@ class Aria2RpcClient:
         """
         return self.call("aria2.getGlobalStat", [])
 
+    # Milestone 2 methods
+
+    def pause(self, gid: str) -> str:
+        """
+        Pause a download task.
+
+        Args:
+            gid: GID of the download task to pause
+
+        Returns:
+            GID of the paused task
+        """
+        return self.call("aria2.pause", [gid])
+
+    def pause_all(self) -> str:
+        """
+        Pause all active downloads.
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.pauseAll", [])
+
+    def unpause(self, gid: str) -> str:
+        """
+        Resume a paused download task.
+
+        Args:
+            gid: GID of the download task to resume
+
+        Returns:
+            GID of the resumed task
+        """
+        return self.call("aria2.unpause", [gid])
+
+    def unpause_all(self) -> str:
+        """
+        Resume all paused downloads.
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.unpauseAll", [])
+
+    def tell_active(self, keys: List[str] = None) -> List[Dict[str, Any]]:
+        """
+        Get list of all active downloads.
+
+        Args:
+            keys: Specific keys to retrieve for each download (optional)
+
+        Returns:
+            List of active download status dictionaries
+        """
+        params = []
+        if keys:
+            params.append(keys)
+        return self.call("aria2.tellActive", params)
+
+    def tell_waiting(
+        self, offset: int = 0, num: int = 100, keys: List[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Get list of waiting downloads with pagination.
+
+        Args:
+            offset: Starting offset in the queue (default: 0)
+            num: Number of downloads to retrieve (default: 100)
+            keys: Specific keys to retrieve for each download (optional)
+
+        Returns:
+            List of waiting download status dictionaries
+        """
+        params = [offset, num]
+        if keys:
+            params.append(keys)
+        return self.call("aria2.tellWaiting", params)
+
+    def tell_stopped(
+        self, offset: int = 0, num: int = 100, keys: List[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Get list of stopped downloads with pagination.
+
+        Args:
+            offset: Starting offset in the queue (default: 0)
+            num: Number of downloads to retrieve (default: 100)
+            keys: Specific keys to retrieve for each download (optional)
+
+        Returns:
+            List of stopped download status dictionaries
+        """
+        params = [offset, num]
+        if keys:
+            params.append(keys)
+        return self.call("aria2.tellStopped", params)
+
+    def get_option(self, gid: str) -> Dict[str, Any]:
+        """
+        Get options for a specific download.
+
+        Args:
+            gid: GID of the download task
+
+        Returns:
+            Dictionary of download options
+        """
+        return self.call("aria2.getOption", [gid])
+
+    def change_option(self, gid: str, options: Dict[str, Any]) -> str:
+        """
+        Change options for a specific download.
+
+        Args:
+            gid: GID of the download task
+            options: Dictionary of options to change
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.changeOption", [gid, options])
+
+    def get_global_option(self) -> Dict[str, Any]:
+        """
+        Get global aria2 options.
+
+        Returns:
+            Dictionary of global options
+        """
+        return self.call("aria2.getGlobalOption", [])
+
+    def change_global_option(self, options: Dict[str, Any]) -> str:
+        """
+        Change global aria2 options.
+
+        Args:
+            options: Dictionary of global options to change
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.changeGlobalOption", [options])
+
+    def purge_download_result(self) -> str:
+        """
+        Remove completed/error/removed downloads from memory.
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.purgeDownloadResult", [])
+
+    def remove_download_result(self, gid: str) -> str:
+        """
+        Remove a specific download result from memory.
+
+        Args:
+            gid: GID of the download result to remove
+
+        Returns:
+            "OK" on success
+        """
+        return self.call("aria2.removeDownloadResult", [gid])
+
+    def get_version(self) -> Dict[str, Any]:
+        """
+        Get aria2 version and enabled features.
+
+        Returns:
+            Dictionary with version information
+        """
+        return self.call("aria2.getVersion", [])
+
+    def list_methods(self) -> List[str]:
+        """
+        List all available RPC methods.
+
+        Returns:
+            List of method names
+        """
+        return self.call("system.listMethods", [])
+
+    def multicall(self, calls: List[Dict[str, Any]]) -> List[Any]:
+        """
+        Execute multiple RPC calls in a single request.
+
+        Args:
+            calls: List of method call dictionaries with keys:
+                   - methodName: str (e.g., "aria2.tellStatus")
+                   - params: List[Any]
+
+        Returns:
+            List of results corresponding to each call
+        """
+        return self.call("system.multicall", [calls])
+
 
 def main():
     """Test the RPC client."""
