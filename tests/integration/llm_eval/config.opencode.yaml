@@ -1,0 +1,105 @@
+# OpenCode Integration Configuration Example
+# This config file demonstrates how to use real OpenCode API for LLM evaluation
+
+# Set to 'opencode' to use real OpenCode instances
+execution_mode: opencode
+
+# OpenCode Executor Configuration (Instance 1)
+# This instance executes natural language commands with the aria2-json-rpc skill
+executor:
+  mode: opencode
+  
+  # OpenCode API endpoint for executor
+  # Update this to your OpenCode instance URL
+  api_endpoint: http://localhost:8080
+  
+  # Model configuration
+  model:
+    # Use Claude 3.5 Sonnet or your preferred model
+    name: claude-3-5-sonnet-20241022
+    # Higher temperature for more creative reasoning
+    temperature: 0.7
+    max_tokens: 4096
+  
+  # API timeout (seconds)
+  timeout: 120
+  
+  # Enable full LLM tracing to capture reasoning chain
+  enable_tracing: true
+  
+  # Authentication (update based on your OpenCode setup)
+  auth:
+    # Options: 'none', 'bearer', 'api_key'
+    type: bearer
+    # Your OpenCode API token
+    token: "your-executor-token-here"
+    # Only needed if type is 'api_key'
+    api_key_header: "X-API-Key"
+
+# OpenCode Evaluator Configuration (Instance 2)
+# This instance analyzes execution records and provides judgments
+evaluator:
+  mode: opencode
+  
+  # Can be same endpoint as executor or different
+  # Using different port in this example for separate instance
+  api_endpoint: http://localhost:8081
+  
+  # Model configuration
+  model:
+    # Same or different model than executor
+    name: claude-3-5-sonnet-20241022
+    # Lower temperature for more consistent evaluation
+    temperature: 0.3
+    max_tokens: 4096
+  
+  # API timeout (seconds)
+  timeout: 120
+  
+  # Evaluation criteria weights (must sum to 1.0)
+  criteria_weights:
+    task_completion: 0.30
+    rpc_correctness: 0.25
+    reasoning_quality: 0.20
+    error_handling: 0.15
+    response_quality: 0.10
+  
+  # Pass/fail threshold (0.0-1.0)
+  pass_threshold: 0.7
+  
+  # Authentication
+  auth:
+    type: bearer
+    # Your OpenCode API token (can be different from executor)
+    token: "your-evaluator-token-here"
+    api_key_header: "X-API-Key"
+
+# aria2 Mock Server Configuration
+mock_server:
+  port: 6800
+  host: localhost
+  verbose: false
+
+# Test Output Configuration
+output:
+  base_dir: ../results
+  generate_reports: true
+  report_formats:
+    - json
+    - yaml
+    - text
+  pretty_json: true
+  include_traces: true
+
+# Logging Configuration
+logging:
+  level: INFO
+  log_to_file: true
+  log_file: llm_eval_opencode.log
+
+# Notes:
+# 1. Make sure both OpenCode instances are running before starting tests
+# 2. Update api_endpoint URLs to match your OpenCode deployment
+# 3. Configure authentication tokens in the auth sections
+# 4. You can use the same endpoint for both executor and evaluator if needed
+# 5. Test connectivity: python3 -m llm_eval.opencode_client

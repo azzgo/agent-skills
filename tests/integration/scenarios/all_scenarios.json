@@ -1,0 +1,242 @@
+[
+  {
+    "test_id": "milestone1_add_uri_001",
+    "milestone": "Milestone 1",
+    "name": "Add URI Download - Single URL",
+    "command": "download http://example.com/file.zip",
+    "expected_outcome": "Download added with valid GID",
+    "description": "Test adding a single HTTP URL download task"
+  },
+  {
+    "test_id": "milestone1_add_uri_002",
+    "milestone": "Milestone 1",
+    "name": "Add URI Download - Multiple URLs",
+    "command": "download these files: http://example.com/file1.zip, http://example.com/file2.zip",
+    "expected_outcome": "Download added with valid GID",
+    "description": "Test adding multiple URLs in a single download task"
+  },
+  {
+    "test_id": "milestone1_tellstatus_001",
+    "milestone": "Milestone 1",
+    "name": "Query Task Status - Valid GID",
+    "command": "show status for GID 1234567890abcdef",
+    "expected_outcome": "Status information displayed",
+    "description": "Test querying status of a download task by GID"
+  },
+  {
+    "test_id": "milestone1_tellstatus_002",
+    "milestone": "Milestone 1",
+    "name": "Query Task Status - Invalid GID",
+    "command": "show status for GID 9999999999999999",
+    "expected_outcome": "Error: GID not found",
+    "description": "Test error handling for non-existent GID"
+  },
+  {
+    "test_id": "milestone1_remove_001",
+    "milestone": "Milestone 1",
+    "name": "Remove Download Task",
+    "command": "remove download 1234567890abcdef",
+    "expected_outcome": "Download removed successfully",
+    "description": "Test removing an active download task"
+  },
+  {
+    "test_id": "milestone1_globalstat_001",
+    "milestone": "Milestone 1",
+    "name": "Get Global Statistics",
+    "command": "show global stats",
+    "expected_outcome": "Global statistics displayed",
+    "description": "Test getting aria2 global statistics"
+  },
+  {
+    "test_id": "milestone1_error_invalid_url",
+    "milestone": "Milestone 1",
+    "name": "Error Handling - Invalid URL",
+    "command": "download not-a-valid-url",
+    "expected_outcome": "Error: Invalid URL",
+    "description": "Test error handling for invalid URL format"
+  },
+  {
+    "test_id": "milestone2_pause_001",
+    "milestone": "Milestone 2",
+    "name": "Pause Single Download",
+    "command": "pause download 1234567890abcdef",
+    "expected_outcome": "Download paused successfully",
+    "description": "Test pausing an active download by GID"
+  },
+  {
+    "test_id": "milestone2_pause_002",
+    "milestone": "Milestone 2",
+    "name": "Pause All Downloads",
+    "command": "pause all downloads",
+    "expected_outcome": "All downloads paused",
+    "description": "Test pausing all active downloads at once"
+  },
+  {
+    "test_id": "milestone2_unpause_001",
+    "milestone": "Milestone 2",
+    "name": "Resume Single Download",
+    "command": "resume download 1234567890abcdef",
+    "expected_outcome": "Download resumed successfully",
+    "description": "Test resuming a paused download by GID"
+  },
+  {
+    "test_id": "milestone2_unpause_002",
+    "milestone": "Milestone 2",
+    "name": "Resume All Downloads",
+    "command": "resume all downloads",
+    "expected_outcome": "All downloads resumed",
+    "description": "Test resuming all paused downloads at once"
+  },
+  {
+    "test_id": "milestone2_tellactive_001",
+    "milestone": "Milestone 2",
+    "name": "List Active Downloads",
+    "command": "what's downloading",
+    "expected_outcome": "List of active downloads",
+    "description": "Test listing all active downloads"
+  },
+  {
+    "test_id": "milestone2_tellwaiting_001",
+    "milestone": "Milestone 2",
+    "name": "List Waiting Downloads",
+    "command": "show waiting downloads",
+    "expected_outcome": "List of waiting downloads",
+    "description": "Test listing waiting/paused downloads with pagination"
+  },
+  {
+    "test_id": "milestone2_tellstopped_001",
+    "milestone": "Milestone 2",
+    "name": "List Stopped Downloads",
+    "command": "list stopped downloads",
+    "expected_outcome": "List of stopped downloads",
+    "description": "Test listing stopped/completed downloads"
+  },
+  {
+    "test_id": "milestone2_getoption_001",
+    "milestone": "Milestone 2",
+    "name": "Get Download Options",
+    "command": "get options for download 1234567890abcdef",
+    "expected_outcome": "Download options displayed",
+    "description": "Test getting options for a specific download"
+  },
+  {
+    "test_id": "milestone2_changeoption_001",
+    "milestone": "Milestone 2",
+    "name": "Change Download Speed Limit",
+    "command": "change speed limit for 1234567890abcdef to 1M",
+    "expected_outcome": "Options updated successfully",
+    "description": "Test modifying download options (speed limit)"
+  },
+  {
+    "test_id": "milestone2_getglobaloption_001",
+    "milestone": "Milestone 2",
+    "name": "Get Global Options",
+    "command": "show global options",
+    "expected_outcome": "Global options displayed",
+    "description": "Test getting global aria2 configuration"
+  },
+  {
+    "test_id": "milestone2_changeglobaloption_001",
+    "milestone": "Milestone 2",
+    "name": "Change Global Options",
+    "command": "set max concurrent downloads to 10",
+    "expected_outcome": "Global options updated",
+    "description": "Test modifying global aria2 options"
+  },
+  {
+    "test_id": "milestone2_purge_001",
+    "milestone": "Milestone 2",
+    "name": "Purge Download Results",
+    "command": "purge completed download records",
+    "expected_outcome": "Download results purged",
+    "description": "Test removing all completed download records"
+  },
+  {
+    "test_id": "milestone2_removeresult_001",
+    "milestone": "Milestone 2",
+    "name": "Remove Download Result",
+    "command": "remove download result 1234567890abcdef",
+    "expected_outcome": "Download result removed",
+    "description": "Test removing a specific download result"
+  },
+  {
+    "test_id": "milestone2_getversion_001",
+    "milestone": "Milestone 2",
+    "name": "Get aria2 Version",
+    "command": "show aria2 version",
+    "expected_outcome": "Version information displayed",
+    "description": "Test getting aria2 version and enabled features"
+  },
+  {
+    "test_id": "milestone2_listmethods_001",
+    "milestone": "Milestone 2",
+    "name": "List Available Methods",
+    "command": "list available RPC methods",
+    "expected_outcome": "List of RPC methods displayed",
+    "description": "Test listing all available aria2 RPC methods"
+  },
+  {
+    "test_id": "milestone2_error_pause_invalid",
+    "milestone": "Milestone 2",
+    "name": "Error - Pause Non-existent GID",
+    "command": "pause download 9999999999999999",
+    "expected_outcome": "Error: GID not found",
+    "description": "Test error handling when pausing non-existent download"
+  },
+  {
+    "test_id": "milestone3_addtorrent_001",
+    "milestone": "Milestone 3",
+    "name": "Add Torrent Download",
+    "command": "add torrent file ubuntu-20.04.torrent",
+    "expected_outcome": "Torrent download added with valid GID",
+    "description": "Test adding a torrent file download (Base64 encoded)"
+  },
+  {
+    "test_id": "milestone3_addtorrent_002",
+    "milestone": "Milestone 3",
+    "name": "Add Magnet Link",
+    "command": "download magnet link magnet:?xt=urn:btih:example123",
+    "expected_outcome": "Torrent download added with valid GID",
+    "description": "Test adding a torrent via magnet link"
+  },
+  {
+    "test_id": "milestone3_addmetalink_001",
+    "milestone": "Milestone 3",
+    "name": "Add Metalink Download",
+    "command": "add metalink file.metalink",
+    "expected_outcome": "Metalink download added with valid GID",
+    "description": "Test adding a metalink file download (Base64 encoded)"
+  },
+  {
+    "test_id": "milestone3_websocket_001",
+    "milestone": "Milestone 3",
+    "name": "Monitor Downloads via WebSocket",
+    "command": "monitor downloads",
+    "expected_outcome": "WebSocket connection established",
+    "description": "Test WebSocket event subscription for download monitoring"
+  },
+  {
+    "test_id": "milestone3_websocket_002",
+    "milestone": "Milestone 3",
+    "name": "Subscribe to Download Events",
+    "command": "subscribe to download events",
+    "expected_outcome": "Event subscription successful",
+    "description": "Test subscribing to aria2 event notifications"
+  },
+  {
+    "test_id": "milestone3_error_no_websocket",
+    "milestone": "Milestone 3",
+    "name": "Error - WebSocket Library Missing",
+    "command": "monitor downloads",
+    "expected_outcome": "Warning: WebSocket not available",
+    "description": "Test fallback when websockets library is not installed"
+  },
+  {
+    "test_id": "milestone3_error_invalid_torrent",
+    "milestone": "Milestone 3",
+    "name": "Error - Invalid Torrent File",
+    "command": "add torrent invalid-file.txt",
+    "expected_outcome": "Error: Invalid torrent file",
+    "description": "Test error handling for invalid torrent file format"
+  }
+]

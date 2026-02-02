@@ -85,51 +85,51 @@
 
 **Tasks (Not Started):**
 
-- [ ] 4.1 Implement OpenCode Executor wrapper for Instance 1
+- [x] 4.1 Implement OpenCode Executor wrapper for Instance 1
   - Load aria2-json-rpc skill in isolated OpenCode instance
   - Enable full LLM context tracing (initial context, reasoning chain, tool calls)
   - Capture all execution data including intermediate steps and decision process
   - Generate execution record in JSON format (see design.md lines 380-464)
 
-- [ ] 4.2 Implement execution record format and serialization
+- [x] 4.2 Implement execution record format and serialization
   - Define JSON schema for execution records (test_id, timestamp, milestone, command, executor_session, llm_tracing, rpc_interactions, skill_output, error_details)
   - Implement serialization/deserialization functions
   - Add validation for execution record structure
   - Support incremental writing for long-running tests
 
-- [ ] 4.3 Implement OpenCode Evaluator wrapper for Instance 2
+- [x] 4.3 Implement OpenCode Evaluator wrapper for Instance 2
   - Load evaluation criteria from configuration (task_completion, rpc_correctness, reasoning_quality, error_handling, response_quality)
   - Receive and parse execution records from Executor
   - Analyze LLM reasoning chain and decision process
   - Generate judgment with confidence scores and criteria breakdown
 
-- [ ] 4.4 Implement evaluation criteria and judgment logic
+- [x] 4.4 Implement evaluation criteria and judgment logic
   - Define scoring rubrics for each criterion (0.0-1.0 scale)
   - Implement LLM-powered analysis of reasoning quality
   - Generate detailed strengths/weaknesses analysis
   - Calculate overall score with weighted criteria
   - Produce pass/fail judgment with confidence level
 
-- [ ] 4.5 Implement failure analysis and improvement suggestions
+- [x] 4.5 Implement failure analysis and improvement suggestions
   - Detect root cause of failures (skill bugs, parameter errors, response parsing issues, etc.)
   - Generate specific improvement suggestions for each failure type
   - Prioritize suggestions (HIGH, MEDIUM, LOW)
   - Provide recommended actions with file locations and code references
 
-- [ ] 4.6 Create evaluation record format and reporting
+- [x] 4.6 Create evaluation record format and reporting
   - Define evaluation record JSON schema (see design.md lines 482-525 for pass, lines 527-577 for fail)
   - Generate comprehensive test reports with pass/fail summary, common patterns, top priorities
   - Support aggregation across multiple test runs
   - Export reports in JSON and human-readable markdown formats
 
-- [ ] 4.7 Implement integration test runner for dual-instance architecture
+- [x] 4.7 Implement integration test runner for dual-instance architecture
   - Manage lifecycle of both OpenCode instances (startup, execution, evaluation, shutdown)
   - Coordinate execution record transfer from Executor to Evaluator
   - Handle test scenarios by milestone (Milestone 1, 2, 3)
   - Support parallel test execution where applicable
   - Implement timeout and error recovery mechanisms
 
-- [ ] 4.8 Create test scenario definitions for Milestone 1
+- [x] 4.8 Create test scenario definitions for Milestone 1
   - Add URI download (single URL): "download http://example.com/file.zip"
   - Add URI download (multiple URLs): "download these files: url1, url2"
   - Query task status by GID: "show status for GID xxx"
@@ -137,56 +137,56 @@
   - Get global statistics: "show global stats"
   - Error handling: invalid URL, non-existent GID
 
-- [ ] 4.9 Create test scenario definitions for Milestone 2
+- [x] 4.9 Create test scenario definitions for Milestone 2
   - Pause/resume operations: "pause download xxx", "resume all"
   - List operations: "what's downloading", "show waiting downloads", "list stopped"
   - Batch operations: "pause all downloads", "resume everything"
   - Option management: "get options for xxx", "change speed limit"
   - Error handling: GID not found, invalid options
 
-- [ ] 4.10 Create test scenario definitions for Milestone 3
+- [x] 4.10 Create test scenario definitions for Milestone 3
   - Torrent operations: "add torrent file.torrent", "download magnet link"
   - Metalink operations: "add metalink file.metalink"
   - Configuration: "get aria2 version", "list available methods"
   - WebSocket events: "monitor downloads", "subscribe to events"
   - Error handling: missing websockets library, invalid torrent
 
-- [ ] 4.11 Implement mock server integration with test runner
+- [x] 4.11 Implement mock server integration with test runner
   - Start mock_aria2_server.py before test execution
   - Configure skill to connect to mock server (ARIA2_RPC_HOST, ARIA2_RPC_PORT)
   - Verify mock server responds correctly to all RPC methods
   - Collect RPC interaction logs for analysis
   - Shutdown mock server after tests complete
 
-- [ ] 4.12 Implement execution record collection and storage
+- [x] 4.12 Implement execution record collection and storage
   - Save execution records to timestamped files (tests/integration/results/execution_records/)
   - Index records by test_id, milestone, and status
   - Support querying records by criteria (passed, failed, milestone)
   - Implement record archiving for old test runs
   - Provide CLI tool to inspect and analyze stored records
 
-- [ ] 4.13 Implement evaluation result aggregation and analysis
+- [x] 4.13 Implement evaluation result aggregation and analysis
   - Aggregate results across all test scenarios
   - Calculate pass/fail rates per milestone
   - Identify common failure patterns (e.g., parameter parsing errors across multiple tests)
   - Track trends over time (improvement or regression)
   - Generate actionable insights and priority fixes
 
-- [ ] 4.14 Create comprehensive test report generation
+- [x] 4.14 Create comprehensive test report generation
   - Generate HTML dashboard with visualizations (pass/fail charts, criteria scores, trends)
   - Export detailed markdown reports with test details and recommendations
   - Include execution traces for failed tests
   - Highlight top improvement priorities with code references
   - Support filtering by milestone, status, and confidence level
 
-- [ ] 4.15 Document LLM evaluation system usage
+- [x] 4.15 Document LLM evaluation system usage
   - Write README for tests/integration/ explaining dual-instance architecture
   - Provide step-by-step guide to run LLM evaluation tests
   - Document execution record and evaluation record formats
   - Explain evaluation criteria and scoring rubrics
   - Add troubleshooting guide for common issues
 
-- [ ] 4.16 Add CI/CD integration for LLM evaluation (optional)
+- [x] 4.16 Add CI/CD integration for LLM evaluation (optional)
   - Integrate with GitHub Actions or similar CI system
   - Run LLM evaluation on pull requests (with token budget limits)
   - Post evaluation summary as PR comment

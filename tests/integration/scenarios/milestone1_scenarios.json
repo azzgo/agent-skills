@@ -1,0 +1,58 @@
+[
+  {
+    "test_id": "milestone1_add_uri_001",
+    "milestone": "Milestone 1",
+    "name": "Add URI Download - Single URL",
+    "command": "download http://example.com/file.zip",
+    "expected_outcome": "Download added with valid GID",
+    "description": "Test adding a single HTTP URL download task"
+  },
+  {
+    "test_id": "milestone1_add_uri_002",
+    "milestone": "Milestone 1",
+    "name": "Add URI Download - Multiple URLs",
+    "command": "download these files: http://example.com/file1.zip, http://example.com/file2.zip",
+    "expected_outcome": "Download added with valid GID",
+    "description": "Test adding multiple URLs in a single download task"
+  },
+  {
+    "test_id": "milestone1_tellstatus_001",
+    "milestone": "Milestone 1",
+    "name": "Query Task Status - Valid GID",
+    "command": "show status for GID 1234567890abcdef",
+    "expected_outcome": "Status information displayed",
+    "description": "Test querying status of a download task by GID"
+  },
+  {
+    "test_id": "milestone1_tellstatus_002",
+    "milestone": "Milestone 1",
+    "name": "Query Task Status - Invalid GID",
+    "command": "show status for GID 9999999999999999",
+    "expected_outcome": "Error: GID not found",
+    "description": "Test error handling for non-existent GID"
+  },
+  {
+    "test_id": "milestone1_remove_001",
+    "milestone": "Milestone 1",
+    "name": "Remove Download Task",
+    "command": "remove download 1234567890abcdef",
+    "expected_outcome": "Download removed successfully",
+    "description": "Test removing an active download task"
+  },
+  {
+    "test_id": "milestone1_globalstat_001",
+    "milestone": "Milestone 1",
+    "name": "Get Global Statistics",
+    "command": "show global stats",
+    "expected_outcome": "Global statistics displayed",
+    "description": "Test getting aria2 global statistics"
+  },
+  {
+    "test_id": "milestone1_error_invalid_url",
+    "milestone": "Milestone 1",
+    "name": "Error Handling - Invalid URL",
+    "command": "download not-a-valid-url",
+    "expected_outcome": "Error: Invalid URL",
+    "description": "Test error handling for invalid URL format"
+  }
+]
