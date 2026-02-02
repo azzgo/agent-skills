@@ -2,6 +2,8 @@
 
 This is an independent test environment for the aria2-json-rpc skill with OpenCode.
 
+**Test Objective**: Validate complete user interaction flow - when users give natural language commands (e.g., "download this file"), the AI agent should understand the intent, call the appropriate Python scripts from the aria2-json-rpc skill, and format responses in a user-friendly way.
+
 **Dependencies**: python3, aria2 daemon, and the aria2-json-rpc skill.
 
 ## Quick Start
@@ -16,7 +18,7 @@ This is an independent test environment for the aria2-json-rpc skill with OpenCo
 
 2. **Load the skill in OpenCode**:
    - Skill location: `.opencode/skills/aria2-json-rpc/`
-   - Config file: `config.json` (in this directory)
+   - Config file: `config.json` (in skill directory: `.opencode/skills/aria2-json-rpc/config.json`)
 
 3. **Run tests**:
    - Follow instructions in `instruct.md`
@@ -52,9 +54,9 @@ pkill -f "aria2c.*--enable-rpc"
 ├── .opencode/
 │   ├── skills/
 │   │   └── aria2-json-rpc/  (skill files)
+│   │       └── config.json  (aria2 connection config)
 │   └── command/
 │       └── test-aria2.md    (OpenCode command)
-├── config.json              (aria2 connection config)
 ├── instruct.md              (test instructions)
 ├── README.md                (this file)
 └── results/                 (test execution results)
@@ -62,7 +64,7 @@ pkill -f "aria2c.*--enable-rpc"
 
 ## Configuration
 
-The `config.json` file in this directory contains aria2 connection settings:
+The `config.json` file in the skill directory (`.opencode/skills/aria2-json-rpc/config.json`) contains aria2 connection settings:
 
 ```json
 {
@@ -107,7 +109,7 @@ The `config.json` file in this directory contains aria2 connection settings:
 
 2. **Load the skill** from `.opencode/skills/aria2-json-rpc/`
 
-3. **Configuration** is automatically loaded from `config.json` in this directory
+3. **Configuration** is automatically loaded from `config.json` in the skill directory
 
 4. **Execute tests** following the instructions in `instruct.md`
 
@@ -142,7 +144,7 @@ tail -f /tmp/aria2-test.log
 ### Tests failing
 
 - Verify aria2 daemon is running (see "Check aria2 Status" above)
-- Check configuration in `config.json` matches aria2 daemon settings
+- Check configuration in `config.json` in skill directory (`.opencode/skills/aria2-json-rpc/config.json`) matches aria2 daemon settings
 - Review aria2 logs: `cat /tmp/aria2-test.log`
 - Ensure skill is loaded from `.opencode/skills/aria2-json-rpc/`
 

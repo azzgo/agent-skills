@@ -31,6 +31,19 @@ Skills are packaged sets of instructions (and optionally scripts) that extend an
 
 Each `SKILL.md` should include:
 
+### 0. Audience and Purpose
+
+**SKILL.md is primarily agent-facing documentation** - it instructs AI agents on how to use the skill's capabilities.
+
+- **Agent-facing skills**: Instructions for agents on which scripts to call, parameters to use, and how to format responses. Example: aria2-json-rpc skill tells agents to call Python scripts rather than manually constructing JSON-RPC requests.
+  
+- **User-facing documentation**: Keep separate in `references/` or `README.md` files to explain features from the user's perspective.
+
+**Key principle**: When a user gives a natural language command, the agent should:
+1. Read SKILL.md to understand how to use the skill
+2. Execute the appropriate scripts or actions
+3. Format the output in a user-friendly way
+
 ### 1. Frontmatter (YAML)
 
 ```markdown

@@ -106,9 +106,9 @@ docs/manual-test/          (Source documentation - for developers)
   ├── .opencode/
   │   ├── skills/
   │   │   └── aria2-json-rpc/  (symlink to ../../skills/aria2-json-rpc)
+  │   │       └── config.json  (aria2 connection config)
   │   └── command/
   │       └── test-aria2.md    (copy)
-  ├── config.json            (aria2 connection config)
   ├── instruct.md            (test instructions - copy)
   ├── README.md              (user guide - copy)
   └── results/               (test results - generated)
@@ -118,7 +118,8 @@ docs/manual-test/          (Source documentation - for developers)
 ## What Gets Copied vs. Symlinked
 
 - **Symlinked**: `.opencode/skills/aria2-json-rpc/` (changes reflected immediately)
-- **Copied**: `README.md`, `instruct.md`, `test-aria2.md`, `config.json` (independent copies)
+- **Copied**: `README.md`, `instruct.md`, `test-aria2.md` (independent copies)
+- **Created in skill directory**: `config.json` (created in `.opencode/skills/aria2-json-rpc/`)
 - **Not copied**: `SETUP-GUIDE.md` (developer-only documentation)
 
 ## Available `just` Commands
@@ -159,7 +160,7 @@ Once the environment is set up, you can run tests independently:
 
 ## Configuration
 
-Default test configuration in `.manual-test/config.json`:
+Default test configuration in `.manual-test/.opencode/skills/aria2-json-rpc/config.json`:
 
 ```json
 {

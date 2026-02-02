@@ -4,17 +4,65 @@ How to write, structure, and present documentation for users and developers in t
 
 ## Overview
 
-Documentation is critical for both users (who want to use skills) and developers (who want to understand or modify skills). This guide ensures all documentation is consistent and user-focused.
+Documentation is critical for both users (who want to use skills) and developers (who want to understand or modify skills). This guide ensures all documentation is consistent and audience-appropriate.
+
+## Documentation by Audience
+
+### Agent-Facing Documentation
+
+**Purpose**: Instruct AI agents on how to use skills and work in this repository
+
+**Locations**:
+- `skills/*/SKILL.md` - Instructions for agents on which scripts to call, parameters to use
+- `skills/*/references/*.md` - Detailed execution guides for agents
+- `docs/agents-*.md` - Guides for AI agents working on code
+- `docs/manual-test/` - Test instructions for agents
+
+**Style**:
+- Direct instructions ("Execute script X", "Call function Y")
+- Technical parameter details
+- Command examples with exact syntax
+- Reference to implementation scripts
+
+### User-Facing Documentation
+
+**Purpose**: Help end users understand what they can accomplish and how to use features
+
+**Locations**:
+- Repository root `README.md` - Overview, installation
+- `docs/*.md` (except `agents-*.md` and `manual-test/`)
+- Example script help text
+
+**Style**:
+- Natural language, use cases
+- Focus on outcomes, not implementation
+- Hide internal details
+- Conversational and helpful
+
+### Spec-Facing Documentation
+
+**Purpose**: Design planning and architectural decisions
+
+**Locations**:
+- `openspec/changes/` - Design artifacts, proposals
+- `openspec/specs/` - Specifications
+
+**Style**:
+- Technical, detailed
+- Architecture and design decisions
+- Implementation planning
 
 ## File Purposes
 
-| File | Location | Purpose |
-|------|----------|---------|
-| README.md | Repository root | Overview of all skills, installation, prerequisites |
-| SKILL.md | In skill directory | Skill activation guide, trigger phrases, quick examples |
-| references/*.md | In skill directory | Deep technical documentation, API specs |
-| openspec/ | Repository | Design artifacts, milestone plans, specifications |
-| AGENTS.md | Repository root | Guidance for AI agents working on code |
+| File | Location | Purpose | Audience |
+|------|----------|---------|----------|
+| README.md | Repository root | Overview of all skills, installation, prerequisites | User |
+| SKILL.md | In skill directory | Instructions on how agents should use the skill | Agent |
+| references/*.md | In skill directory | Detailed execution instructions for agents | Agent |
+| openspec/ | Repository | Design artifacts, milestone plans, specifications | Spec |
+| AGENTS.md | Repository root | Entry point for AI agents working on code | Agent |
+| docs/agents-*.md | docs/ | Guides for AI agents developing in this repo | Agent |
+| docs/manual-test/ | docs/ | Test instructions for agents | Agent |
 
 ## Writing Style
 
@@ -70,6 +118,39 @@ Before publishing any user-facing documentation, ask:
 ### Reference Implementation
 
 Check existing `SKILL.md` files in the repository for examples of user-oriented documentation.
+
+## Agent-Facing Documentation Requirements
+
+**Purpose**: Instruct AI agents clearly and precisely on how to use skills.
+
+### Core Principles
+
+1. **Be explicit and prescriptive** - Tell agents exactly what to do ("Execute: `python scripts/...`")
+2. **Include exact commands** - Show the full command with parameters
+3. **Explain the flow** - User intent → Agent action → Output formatting
+4. **Prevent common mistakes** - Use warnings like "⚠️ DO NOT manually construct..."
+5. **Reference implementation** - Point to actual scripts and functions
+
+### Writing Style for Agent Docs
+
+```markdown
+**User says**: "download this file"
+
+**You should do**:
+1. Identify intent: Add new download
+2. Execute: `python scripts/rpc_client.py aria2.addUri '["<url>"]'`
+3. Parse the returned GID and format a user-friendly response
+
+**Do NOT**: Manually construct JSON-RPC requests
+```
+
+### Agent Doc Checklist
+
+- [ ] Clear mapping from user intent to agent action
+- [ ] Exact commands with parameter examples
+- [ ] Links to relevant scripts and references
+- [ ] Common mistakes section with warnings
+- [ ] Example of expected output format
 
 ## Technical Documentation
 

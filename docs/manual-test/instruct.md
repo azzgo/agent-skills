@@ -1,11 +1,28 @@
 # Manual Testing Instructions for aria2-json-rpc Skill
 
+## Testing Objective
+
+**This test validates the complete user interaction flow:**
+
+When a user gives natural language commands (e.g., "download http://example.com/file.zip"), the AI agent should:
+1. **Understand** the user's intent from natural language
+2. **Execute** the appropriate Python script from the skill's `scripts/` directory
+3. **Format** the script output into a user-friendly response
+
+The aria2-json-rpc skill is **agent-facing** - it instructs agents to use Python scripts rather than manually constructing JSON-RPC requests. These tests verify that agents correctly interpret user commands and call the right scripts.
+
+**What we're testing:**
+- ✅ Agent's ability to map user requests to script calls
+- ✅ Correct script execution with proper parameters
+- ✅ User-friendly response formatting
+- ❌ NOT testing: Manual JSON-RPC construction (agents should never do this)
+
 ## Prerequisites
 
 Before running tests, ensure:
 1. aria2 daemon is running on localhost:6800 with secret "test-secret"
 2. aria2-json-rpc skill is loaded from `.opencode/skills/aria2-json-rpc/`
-3. Configuration is loaded from `config.json` in the current directory
+3. Configuration is loaded from `config.json` in the skill directory (`.opencode/skills/aria2-json-rpc/config.json`)
 
 ## Test Configuration
 
@@ -21,7 +38,12 @@ Before running tests, ensure:
 
 ### Test 1.1: Download a file from URL
 
-**Command**: `download http://example.com/test-file.zip`
+**User Command**: `download http://example.com/test-file.zip`
+
+**What Agent Should Do**:
+- Identify intent: Add a new download
+- Execute: `python scripts/rpc_client.py aria2.addUri '["http://example.com/test-file.zip"]'`
+- Parse the returned GID and format a user-friendly response
 
 **Expected Results**:
 - A new GID is returned
@@ -37,7 +59,12 @@ Before running tests, ensure:
 
 ### Test 1.2: Download multiple files
 
-**Command**: `download http://example.com/file1.zip http://example.com/file2.zip`
+**User Command**: `download http://example.com/file1.zip http://example.com/file2.zip`
+
+**What Agent Should Do**:
+- Identify intent: Add multiple downloads
+- Execute: `python scripts/rpc_client.py aria2.addUri '["http://example.com/file1.zip","http://example.com/file2.zip"]'`
+- Parse multiple GIDs and format a user-friendly response
 
 **Expected Results**:
 - Multiple GIDs are returned (one per URL)
@@ -52,7 +79,12 @@ Before running tests, ensure:
 
 ### Test 1.3: Query download status
 
-**Command**: `show status for GID <gid>`
+**User Command**: `show status for GID <gid>`
+
+**What Agent Should Do**:
+- Identify intent: Query download status
+- Execute: `python scripts/rpc_client.py aria2.tellStatus '<gid>'`
+- Parse status information and format in a readable way
 
 **Expected Results**:
 - Download details returned (status, progress, speed, etc.)
@@ -67,7 +99,12 @@ Before running tests, ensure:
 
 ### Test 1.4: Query global statistics
 
-**Command**: `show global stats`
+**User Command**: `show global stats`
+
+**What Agent Should Do**:
+- Identify intent: Get global statistics
+- Execute: `python scripts/rpc_client.py aria2.getGlobalStat`
+- Parse statistics and present in a readable format
 
 **Expected Results**:
 - Global statistics returned
@@ -82,7 +119,12 @@ Before running tests, ensure:
 
 ### Test 1.5: Remove download
 
-**Command**: `remove GID <gid>`
+**User Command**: `remove GID <gid>`
+
+**What Agent Should Do**:
+- Identify intent: Remove a download
+- Execute: `python scripts/rpc_client.py aria2.remove '<gid>'`
+- Confirm removal to the user
 
 **Expected Results**:
 - Download is removed from aria2
@@ -100,7 +142,12 @@ Before running tests, ensure:
 
 ### Test 2.1: List active downloads
 
-**Command**: `show active downloads`
+**User Command**: `show active downloads`
+
+**What Agent Should Do**:
+- Identify intent: List active downloads
+- Execute: `python scripts/examples/list-downloads.py` or `python scripts/rpc_client.py aria2.tellActive`
+- Format the list in a user-friendly table or list format
 
 **Expected Results**:
 - List of all active downloads returned
@@ -145,7 +192,12 @@ Before running tests, ensure:
 
 ### Test 2.4: Pause a specific download
 
-**Command**: `pause GID <gid>`
+**User Command**: `pause GID <gid>`
+
+**What Agent Should Do**:
+- Identify intent: Pause a specific download
+- Execute: `python scripts/rpc_client.py aria2.pause '<gid>'`
+- Confirm pause action to the user
 
 **Expected Results**:
 - Download status changes to "paused"
@@ -161,7 +213,12 @@ Before running tests, ensure:
 
 ### Test 2.5: Pause all downloads
 
-**Command**: `pause all downloads`
+**User Command**: `pause all downloads`
+
+**What Agent Should Do**:
+- Identify intent: Pause all active downloads
+- Execute: `python scripts/examples/pause-all.py` or `python scripts/rpc_client.py aria2.pauseAll`
+- Report number of downloads paused
 
 **Expected Results**:
 - All active downloads are paused
@@ -400,16 +457,20 @@ For each test, record:
 
 **Status**: PASS / FAIL
 
-**Command Executed**: [command]
+**User Command**: [natural language command]
 
-**Tool Calls Made**:
-- [Tool name]: [parameters]
-- [Tool name]: [parameters]
+**Agent Actions**:
+- Tool Call: Bash
+- Command Executed: [python scripts/... command]
+- Description: [what the agent did]
 
-**Response from aria2**:
+**Script Output**:
 ```json
-[response data]
+[raw output from Python script]
 ```
+
+**Agent Response to User**:
+[The formatted, user-friendly response the agent gave]
 
 **Verification Results**:
 - [Verification step 1]: PASS / FAIL
@@ -418,6 +479,8 @@ For each test, record:
 
 **Issues / Notes**:
 - [Any issues encountered]
+- [Did the agent choose the correct script?]
+- [Was the response user-friendly?]
 - [Additional observations]
 
 ---

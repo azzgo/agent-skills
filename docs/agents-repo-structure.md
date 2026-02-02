@@ -6,6 +6,24 @@ This document details the structure of this repository and the conventions used 
 
 This is a **skills repository** that manages multiple agent skills. Each skill is a packaged set of instructions (and optionally scripts) that extends an agent's capabilities for specific tasks.
 
+## Documentation Audience by Directory
+
+Different directories contain documentation for different audiences:
+
+- **`/skills/`** - All documentation is **agent-facing**
+  - `SKILL.md` instructs AI agents on how to use the skill
+  - `references/*.md` provide detailed execution instructions for agents
+  - Scripts in `scripts/` are the implementation that agents should call
+
+- **`/openspec/`** - All documentation is **spec-facing**
+  - Design documents, proposals, and specifications
+  - Used for planning and architectural decisions
+
+- **`/docs/`** - Mixed audience
+  - `agents-*.md` files are **agent-facing** (guides for AI agents)
+  - `manual-test/` is **agent-facing** (test instructions for agents)
+  - Other docs are typically **user-facing**
+
 ## Current Skills
 
 - `skills/aria2-json-rpc/` - Control aria2 download manager via JSON-RPC 2.0

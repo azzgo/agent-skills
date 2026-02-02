@@ -2,6 +2,30 @@
 
 This file serves as the entry point for AI coding agents (Claude Code, Cursor, Copilot, etc.) working in this repository. It provides a high-level introduction and progressive navigation to specialized topic guides for best practices and automation.
 
+## Documentation Audience Guide
+
+**Understanding who each document is for:**
+
+- **`/skills/` directory** - All documentation is **agent-facing**
+  - `SKILL.md` files instruct AI agents on how to use the skill's capabilities
+  - `references/*.md` provide detailed execution instructions for agents
+  - Example: aria2-json-rpc SKILL.md tells agents which Python scripts to call
+  
+- **`/openspec/` directory** - All documentation is **specification-facing**
+  - Design documents, proposals, and technical specifications
+  - Used for planning and architectural decisions
+  - Not intended for direct execution by agents during normal operation
+
+- **`/docs/` directory** - Most documentation is **user-facing** (with exceptions)
+  - `agents-*.md` files are **agent-facing** (guides for AI agents working in this repo)
+  - `manual-test/` subdirectory is **agent-facing** (instructions for testing workflows)
+  - Other documentation typically explains features from the user's perspective
+
+**Key principle**: When users give natural language commands, agents should:
+1. Read agent-facing docs (SKILL.md, agents-*.md) to understand how to execute
+2. Call appropriate scripts or tools
+3. Format output in a user-friendly way based on user-facing documentation style
+
 ## Quick Navigation
 
 For detailed guidance, consult the topic-specific documents in the [/docs](./docs) folder:
