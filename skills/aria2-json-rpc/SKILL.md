@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.6+. WebSocket support requires websockets package (pip install websockets) and Python version must match dependency requirements.
 metadata:
   author: ISON
-  version: "1.0"
+  version: "1.0.1"
 ---
 
 ## What This Skill Does
@@ -84,11 +84,43 @@ For detailed usage and more commands, see [execution-guide.md](references/execut
 ## Configuration
 
 Scripts automatically load configuration from:
-1. Environment variables (`ARIA2_RPC_HOST`, `ARIA2_RPC_PORT`, etc.)
+1. Environment variables (`ARIA2_RPC_HOST`, `ARIA2_RPC_PORT`, `ARIA2_RPC_PATH`, etc.)
 2. `config.json` in skill directory
 3. Defaults (localhost:6800)
 
 **You don't need to configure anything** - scripts handle it automatically.
+
+### Configuration Options
+
+- **host**: Hostname or IP address (default: `localhost`)
+- **port**: Port number (default: `6800`)
+- **path**: URL path (default: `null`). Set to `/jsonrpc` for standard aria2, or custom path for reverse proxy
+- **secret**: RPC secret token (default: `null`)
+- **secure**: Use HTTPS instead of HTTP (default: `false`)
+- **timeout**: Request timeout in milliseconds (default: `30000`)
+
+### Reverse Proxy Support
+
+For reverse proxy setups like `https://example.com:443/jsonrpc`, configure:
+
+```json
+{
+  "host": "example.com",
+  "port": 443,
+  "path": "/jsonrpc",
+  "secret": "your-secret-token",
+  "secure": true
+}
+```
+
+Or via environment variables:
+```bash
+export ARIA2_RPC_HOST="example.com"
+export ARIA2_RPC_PORT=443
+export ARIA2_RPC_PATH="/jsonrpc"
+export ARIA2_RPC_SECURE="true"
+export ARIA2_RPC_SECRET="your-secret-token"
+```
 
 ## Key Principles
 

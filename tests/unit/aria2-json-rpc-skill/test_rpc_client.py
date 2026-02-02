@@ -27,6 +27,7 @@ class TestAria2RpcClient(unittest.TestCase):
         self.config = {
             "host": "localhost",
             "port": 6800,
+            "path": None,
             "secret": "test-token",
             "secure": False,
             "timeout": 30000,
@@ -37,20 +38,59 @@ class TestAria2RpcClient(unittest.TestCase):
         """Test client initialization with configuration."""
         self.assertEqual(self.client.config["host"], "localhost")
         self.assertEqual(self.client.config["port"], 6800)
+        self.assertIsNone(self.client.config["path"])
         self.assertEqual(self.client.config["secret"], "test-token")
-        self.assertEqual(self.client.endpoint_url, "http://localhost:6800/jsonrpc")
+        self.assertEqual(self.client.endpoint_url, "http://localhost:6800")
 
     def test_build_endpoint_url_http(self):
         """Test HTTP endpoint URL building."""
         client = Aria2RpcClient(
-            {"host": "localhost", "port": 6800, "secure": False, "secret": None}
+            {
+                "host": "localhost",
+                "port": 6800,
+                "path": "/jsonrpc",
+                "secure": False,
+                "secret": None,
+            }
         )
         self.assertEqual(client.endpoint_url, "http://localhost:6800/jsonrpc")
 
     def test_build_endpoint_url_https(self):
         """Test HTTPS endpoint URL building."""
         client = Aria2RpcClient(
-            {"host": "example.com", "port": 443, "secure": True, "secret": None}
+            {
+                "host": "example.com",
+                "port": 443,
+                "path": "/jsonrpc",
+                "secure": True,
+                "secret": None,
+            }
+        )
+        self.assertEqual(client.endpoint_url, "https://example.com:443/jsonrpc")
+
+    def test_build_endpoint_url_no_path(self):
+        """Test endpoint URL building without path."""
+        client = Aria2RpcClient(
+            {
+                "host": "localhost",
+                "port": 6800,
+                "path": None,
+                "secure": False,
+                "secret": None,
+            }
+        )
+        self.assertEqual(client.endpoint_url, "http://localhost:6800")
+
+    def test_build_endpoint_url_reverse_proxy(self):
+        """Test endpoint URL building for reverse proxy."""
+        client = Aria2RpcClient(
+            {
+                "host": "example.com",
+                "port": 443,
+                "path": "/jsonrpc",
+                "secure": True,
+                "secret": None,
+            }
         )
         self.assertEqual(client.endpoint_url, "https://example.com:443/jsonrpc")
 

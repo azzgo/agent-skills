@@ -38,6 +38,7 @@ class Aria2Config:
     DEFAULT_CONFIG = {
         "host": "localhost",
         "port": 6800,
+        "path": None,  # Optional: specify path like "/jsonrpc". If null, no path is appended.
         "secret": None,
         "secure": False,
         "timeout": 30000,
@@ -48,6 +49,7 @@ class Aria2Config:
     ENV_VARS = {
         "host": "ARIA2_RPC_HOST",
         "port": "ARIA2_RPC_PORT",
+        "path": "ARIA2_RPC_PATH",
         "secret": "ARIA2_RPC_SECRET",
         "secure": "ARIA2_RPC_SECURE",
         "timeout": "ARIA2_RPC_TIMEOUT",
@@ -165,6 +167,15 @@ class Aria2Config:
                 elif key == "secret":
                     # Empty string means no secret
                     env_config[key] = value if value else None
+                elif key == "path":
+                    # Empty string means no path (will be None)
+                    # Ensure non-empty path starts with /
+                    if value:
+                        if not value.startswith("/"):
+                            value = "/" + value
+                        env_config[key] = value
+                    else:
+                        env_config[key] = None
                 else:
                     env_config[key] = value
 
@@ -208,6 +219,17 @@ class Aria2Config:
         if not isinstance(config.get("secure"), bool):
             raise ConfigurationError("Secure must be a boolean (true/false)")
 
+        # Validate path (optional field)
+        path = config.get("path")
+        if path is not None:
+            if not isinstance(path, str):
+                raise ConfigurationError("Path must be a string or null")
+
+            if not path.startswith("/"):
+                raise ConfigurationError(
+                    f"Invalid path: {path}. Must start with '/' (e.g., '/jsonrpc') or be null"
+                )
+
     def test_connection(self):
         """
         Test connection to aria2 RPC endpoint.
@@ -220,7 +242,8 @@ class Aria2Config:
 
         # Build URL
         protocol = "https" if self.config["secure"] else "http"
-        url = f"{protocol}://{self.config['host']}:{self.config['port']}/jsonrpc"
+        path = self.config.get("path") or ""
+        url = f"{protocol}://{self.config['host']}:{self.config['port']}{path}"
 
         # Create a simple test request (aria2.getVersion)
         request_data = {
@@ -298,7 +321,8 @@ class Aria2Config:
             self.load()
 
         protocol = "https" if self.config["secure"] else "http"
-        return f"{protocol}://{self.config['host']}:{self.config['port']}/jsonrpc"
+        path = self.config.get("path") or ""
+        return f"{protocol}://{self.config['host']}:{self.config['port']}{path}"
 
 
 if __name__ == "__main__":

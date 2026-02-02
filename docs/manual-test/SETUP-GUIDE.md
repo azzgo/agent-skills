@@ -178,11 +178,17 @@ Default test configuration created at `.manual-test/.opencode/skills/aria2-json-
 {
   "host": "localhost",
   "port": 6800,
+  "path": null,
   "secret": "test-secret",
   "secure": false,
   "timeout": 30000
 }
 ```
+
+**Note**: The `path` field is optional:
+- Set to `null` for standard aria2 on localhost (default)
+- Set to `"/jsonrpc"` or custom path for reverse proxy setups
+- See skill documentation for reverse proxy configuration examples
 
 ## Maintenance
 

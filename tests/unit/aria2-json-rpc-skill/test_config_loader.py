@@ -41,6 +41,7 @@ class TestAria2Config(unittest.TestCase):
 
         self.assertEqual(config.get("host"), "localhost")
         self.assertEqual(config.get("port"), 6800)
+        self.assertIsNone(config.get("path"))
         self.assertIsNone(config.get("secret"))
         self.assertFalse(config.get("secure"))
         self.assertEqual(config.get("timeout"), 30000)
@@ -50,6 +51,7 @@ class TestAria2Config(unittest.TestCase):
         test_config = {
             "host": "192.168.1.1",
             "port": 7000,
+            "path": "/api/jsonrpc",
             "secret": "my-secret",
             "secure": True,
             "timeout": 60000,
@@ -63,6 +65,7 @@ class TestAria2Config(unittest.TestCase):
 
         self.assertEqual(config.get("host"), "192.168.1.1")
         self.assertEqual(config.get("port"), 7000)
+        self.assertEqual(config.get("path"), "/api/jsonrpc")
         self.assertEqual(config.get("secret"), "my-secret")
         self.assertTrue(config.get("secure"))
         self.assertEqual(config.get("timeout"), 60000)
@@ -72,6 +75,7 @@ class TestAria2Config(unittest.TestCase):
         env_vars = {
             "ARIA2_RPC_HOST": "env-host",
             "ARIA2_RPC_PORT": "9000",
+            "ARIA2_RPC_PATH": "/custom/path",
             "ARIA2_RPC_SECRET": "env-secret",
             "ARIA2_RPC_SECURE": "true",
             "ARIA2_RPC_TIMEOUT": "45000",
@@ -83,18 +87,28 @@ class TestAria2Config(unittest.TestCase):
 
             self.assertEqual(config.get("host"), "env-host")
             self.assertEqual(config.get("port"), 9000)
+            self.assertEqual(config.get("path"), "/custom/path")
             self.assertEqual(config.get("secret"), "env-secret")
             self.assertTrue(config.get("secure"))
             self.assertEqual(config.get("timeout"), 45000)
 
     def test_env_vars_override_file(self):
         """Test environment variables override file configuration."""
-        test_config = {"host": "file-host", "port": 6000, "secret": "file-secret"}
+        test_config = {
+            "host": "file-host",
+            "port": 6000,
+            "path": "/file/path",
+            "secret": "file-secret",
+        }
 
         with open(self.config_path, "w") as f:
             json.dump(test_config, f)
 
-        env_vars = {"ARIA2_RPC_HOST": "env-host", "ARIA2_RPC_PORT": "7000"}
+        env_vars = {
+            "ARIA2_RPC_HOST": "env-host",
+            "ARIA2_RPC_PORT": "7000",
+            "ARIA2_RPC_PATH": "/env/path",
+        }
 
         with patch.dict(os.environ, env_vars, clear=True):
             config = Aria2Config(self.config_path)
@@ -103,6 +117,7 @@ class TestAria2Config(unittest.TestCase):
             # Environment variables should override
             self.assertEqual(config.get("host"), "env-host")
             self.assertEqual(config.get("port"), 7000)
+            self.assertEqual(config.get("path"), "/env/path")
             # File values should be used for non-env vars
             self.assertEqual(config.get("secret"), "file-secret")
 
@@ -180,13 +195,42 @@ class TestAria2Config(unittest.TestCase):
 
     def test_get_endpoint_url(self):
         """Test endpoint URL generation."""
-        # HTTP
+        # HTTP with default path (null)
         config = Aria2Config(self.config_path)
-        config.config = {"host": "localhost", "port": 6800, "secure": False}
+        config.config = {
+            "host": "localhost",
+            "port": 6800,
+            "path": None,
+            "secure": False,
+        }
+        config._loaded = True
+        self.assertEqual(config.get_endpoint_url(), "http://localhost:6800")
+
+        # HTTP with custom path
+        config.config = {
+            "host": "localhost",
+            "port": 6800,
+            "path": "/jsonrpc",
+            "secure": False,
+        }
         self.assertEqual(config.get_endpoint_url(), "http://localhost:6800/jsonrpc")
 
-        # HTTPS
-        config.config = {"host": "example.com", "port": 443, "secure": True}
+        # HTTPS with custom path
+        config.config = {
+            "host": "example.com",
+            "port": 443,
+            "path": "/api/rpc",
+            "secure": True,
+        }
+        self.assertEqual(config.get_endpoint_url(), "https://example.com:443/api/rpc")
+
+        # HTTPS reverse proxy
+        config.config = {
+            "host": "example.com",
+            "port": 443,
+            "path": "/jsonrpc",
+            "secure": True,
+        }
         self.assertEqual(config.get_endpoint_url(), "https://example.com:443/jsonrpc")
 
     def test_reload_preserves_on_error(self):
@@ -225,6 +269,44 @@ class TestAria2Config(unittest.TestCase):
 
         # Original should be unchanged
         self.assertNotEqual(config.get("host"), "modified")
+
+    def test_path_null_or_empty(self):
+        """Test path can be null or empty string."""
+        # Null path
+        test_config = {"host": "localhost", "port": 6800, "path": None}
+        with open(self.config_path, "w") as f:
+            json.dump(test_config, f)
+
+        config = Aria2Config(self.config_path)
+        config.load()
+        self.assertIsNone(config.get("path"))
+        self.assertEqual(config.get_endpoint_url(), "http://localhost:6800")
+
+        # Empty string path via env var
+        env_vars = {"ARIA2_RPC_PATH": ""}
+        with patch.dict(os.environ, env_vars, clear=True):
+            config = Aria2Config(self.config_path)
+            config.load()
+            self.assertIsNone(config.get("path"))
+
+    def test_path_without_leading_slash(self):
+        """Test path without leading slash is automatically prefixed."""
+        env_vars = {"ARIA2_RPC_PATH": "jsonrpc"}
+        with patch.dict(os.environ, env_vars, clear=True):
+            config = Aria2Config(self.config_path)
+            config.load()
+            self.assertEqual(config.get("path"), "/jsonrpc")
+
+    def test_path_invalid_type(self):
+        """Test path must be string or null."""
+        test_config = {"host": "localhost", "port": 6800, "path": 123}
+        with open(self.config_path, "w") as f:
+            json.dump(test_config, f)
+
+        config = Aria2Config(self.config_path)
+        with self.assertRaises(ConfigurationError) as context:
+            config.load()
+        self.assertIn("Path must be a string or null", str(context.exception))
 
 
 if __name__ == "__main__":

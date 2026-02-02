@@ -56,7 +56,8 @@ class Aria2RpcClient:
         protocol = "https" if self.config.get("secure", False) else "http"
         host = self.config["host"]
         port = self.config["port"]
-        return f"{protocol}://{host}:{port}/jsonrpc"
+        path = self.config.get("path") or ""
+        return f"{protocol}://{host}:{port}{path}"
 
     def _generate_request_id(self) -> str:
         """Generate a unique request ID."""
