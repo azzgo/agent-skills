@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 #
-# Test runner for aria2-json-rpc-skills using UV for dependency management.
+# Unit test runner for aria2-json-rpc-skills using UV for dependency management.
 #
-# This script runs unit tests in an isolated environment using UV,
+# This script runs all unit tests in an isolated environment using UV,
 # preventing pollution of the global Python environment.
 #
 # Usage:
-#   ./run_tests.sh              # Run all tests
-#   ./run_tests.sh milestone1   # Run Milestone 1 tests only
-#   ./run_tests.sh milestone2   # Run Milestone 2 tests only
-#   ./run_tests.sh milestone3   # Run Milestone 3 tests with websockets
+#   ./run_unit_tests.sh         # Run all unit tests
 #
 
 set -e  # Exit on error
@@ -24,7 +21,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo "=========================================="
-echo "aria2-json-rpc-skills Test Runner (UV)"
+echo "Unit Test Runner (UV)"
 echo "=========================================="
 echo ""
 
@@ -44,37 +41,8 @@ fi
 echo -e "${GREEN}✓ UV is installed${NC}"
 echo ""
 
-# Determine which tests to run
-MILESTONE="${1:-all}"
-
-case "$MILESTONE" in
-    milestone1|m1|1)
-        echo "Running Milestone 1 tests (no external dependencies)..."
-        TEST_PATTERN="tests/unit/test_rpc_client.py tests/unit/test_config_loader.py tests/unit/test_command_mapper.py"
-        INSTALL_DEPS=false
-        ;;
-    milestone2|m2|2)
-        echo "Running Milestone 2 tests (no external dependencies)..."
-        TEST_PATTERN="tests/unit/test_rpc_client.py tests/unit/test_config_loader.py tests/unit/test_command_mapper.py"
-        INSTALL_DEPS=false
-        ;;
-    milestone3|m3|3)
-        echo "Running Milestone 3 tests (requires websockets)..."
-        TEST_PATTERN="tests/unit/test_milestone3.py"
-        INSTALL_DEPS=true
-        ;;
-    all)
-        echo "Running all unit tests..."
-        TEST_PATTERN="tests/unit/"
-        INSTALL_DEPS=true
-        ;;
-    *)
-        echo -e "${RED}ERROR: Invalid milestone '$MILESTONE'${NC}"
-        echo "Usage: $0 [milestone1|milestone2|milestone3|all]"
-        exit 1
-        ;;
-esac
-
+echo "Running all unit tests..."
+TEST_PATTERN="tests/unit/"
 echo ""
 
 # Create virtual environment if it doesn't exist
@@ -85,13 +53,11 @@ if [ ! -d ".venv" ]; then
     echo ""
 fi
 
-# Install dependencies in isolated environment if needed
-if [ "$INSTALL_DEPS" = true ]; then
-    echo -e "${YELLOW}Installing dependencies in isolated environment...${NC}"
-    uv pip install --quiet pytest websockets
-    echo -e "${GREEN}✓ Dependencies installed${NC}"
-    echo ""
-fi
+# Install dependencies in isolated environment
+echo -e "${YELLOW}Installing dependencies in isolated environment...${NC}"
+uv pip install --quiet pytest websockets
+echo -e "${GREEN}✓ Dependencies installed${NC}"
+echo ""
 
 # Run tests with UV
 echo "Running tests..."

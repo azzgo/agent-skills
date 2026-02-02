@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 # Add scripts directory to path
 script_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "skills", "aria2-json-rpc", "scripts"
+    os.path.dirname(__file__), "..", "..", "..", "skills", "aria2-json-rpc", "scripts"
 )
 sys.path.insert(0, script_dir)
 from config_loader import Aria2Config, ConfigurationError
