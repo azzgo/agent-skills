@@ -41,7 +41,7 @@ manual-test-setup:
     @cp docs/manual-test/test-aria2.md .manual-test/.opencode/command/test-aria2.md
     @cp docs/manual-test/README.md .manual-test/README.md
     @echo "Creating skill config in skill root directory..."
-    @cp skills/aria2-json-rpc/assets/config.example.json .manual-test/.opencode/skills/aria2-json-rpc/config.json
+    @cp skills/aria2-json-rpc/config.example.json .manual-test/.opencode/skills/aria2-json-rpc/config.json
     @echo "✓ Manual test environment ready"
     @echo ""
     @echo "Next steps:"
