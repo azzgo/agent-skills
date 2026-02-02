@@ -2,7 +2,7 @@
 name: aria2-json-rpc
 description: Interact with aria2 download manager via JSON-RPC 2.0. Manage downloads, query status, and control tasks through natural language commands. Use when working with aria2, download management, or torrent operations.
 license: MIT
-compatibility: Requires Python 3.6+. WebSocket support requires websockets package (pip install websockets).
+compatibility: Requires Python 3.6+. WebSocket support requires websockets package (pip install websockets) and Python version must match dependency requirements.
 metadata:
   author: ISON
   version: "1.0"

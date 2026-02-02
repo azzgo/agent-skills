@@ -59,8 +59,8 @@ Add a new download from HTTP/HTTPS/FTP/SFTP/Magnet URIs.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
-python scripts/rpc_client.py aria2.addUri '["http://mirror1.com/file.zip", "http://mirror2.com/file.zip"]'
+python3 scripts/rpc_client.py aria2.addUri '["http://example.com/file.zip"]'
+python3 scripts/rpc_client.py aria2.addUri '["http://mirror1.com/file.zip", "http://mirror2.com/file.zip"]'
 ```
 
 ### aria2.addTorrent
@@ -77,7 +77,7 @@ Add a BitTorrent download.
 
 **Script call:**
 ```bash
-python scripts/examples/add-torrent.py /path/to/file.torrent
+python3 scripts/examples/add-torrent.py /path/to/file.torrent
 ```
 
 ### aria2.addMetalink
@@ -93,7 +93,7 @@ Add downloads from a Metalink file.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.addMetalink '<base64-encoded-metalink>'
+python3 scripts/rpc_client.py aria2.addMetalink '<base64-encoded-metalink>'
 ```
 
 ### aria2.remove
@@ -107,7 +107,7 @@ Remove a download. If the download is active, it will be stopped first.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.remove 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.remove 2089b05ecca3d829
 ```
 
 **When to use:**
@@ -132,7 +132,7 @@ Pause an active download.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.pause 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.pause 2089b05ecca3d829
 ```
 
 **Notes:**
@@ -149,7 +149,7 @@ Pause all active downloads.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.pauseAll
+python3 scripts/rpc_client.py aria2.pauseAll
 ```
 
 ### aria2.unpause
@@ -163,7 +163,7 @@ Resume a paused download.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.unpause 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.unpause 2089b05ecca3d829
 ```
 
 ### aria2.unpauseAll
@@ -176,7 +176,7 @@ Resume all paused downloads.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.unpauseAll
+python3 scripts/rpc_client.py aria2.unpauseAll
 ```
 
 ---
@@ -204,8 +204,8 @@ Get detailed status of a download.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
-python scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829 '["status", "totalLength", "completedLength"]'
+python3 scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.tellStatus 2089b05ecca3d829 '["status", "totalLength", "completedLength"]'
 ```
 
 ### aria2.tellActive
@@ -219,8 +219,8 @@ Get list of all active downloads.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.tellActive
-python scripts/rpc_client.py aria2.tellActive '["gid", "status", "downloadSpeed"]'
+python3 scripts/rpc_client.py aria2.tellActive
+python3 scripts/rpc_client.py aria2.tellActive '["gid", "status", "downloadSpeed"]'
 ```
 
 ### aria2.tellWaiting
@@ -236,8 +236,8 @@ Get list of downloads in the waiting queue.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.tellWaiting 0 100
-python scripts/rpc_client.py aria2.tellWaiting 0 10 '["gid", "status"]'
+python3 scripts/rpc_client.py aria2.tellWaiting 0 100
+python3 scripts/rpc_client.py aria2.tellWaiting 0 10 '["gid", "status"]'
 ```
 
 ### aria2.tellStopped
@@ -253,8 +253,8 @@ Get list of stopped downloads (completed, error, or removed).
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.tellStopped 0 100
-python scripts/rpc_client.py aria2.tellStopped -1 10  # Get last 10
+python3 scripts/rpc_client.py aria2.tellStopped 0 100
+python3 scripts/rpc_client.py aria2.tellStopped -1 10  # Get last 10
 ```
 
 ---
@@ -267,7 +267,7 @@ Both `aria2.tellWaiting` and `aria2.tellStopped` use pagination parameters:
 
 | Scenario | offset | num | Example |
 |----------|--------|-----|---------|
-| Get first page | `0` | `100` | `python scripts/rpc_client.py aria2.tellStopped 0 100` |
+| Get first page | `0` | `100` | `python3 scripts/rpc_client.py aria2.tellStopped 0 100` |
 | Get all items (small queue) | `0` | `1000` | Get up to 1000 items at once |
 | Get recent items only | `-1` | `10` | Last 10 stopped downloads |
 | Paginate large results | `0`, `100`, `200`, ... | `100` | Loop with increasing offset |
@@ -281,9 +281,9 @@ Both `aria2.tellWaiting` and `aria2.tellStopped` use pagination parameters:
 **Example: Get All Stopped Downloads**
 ```bash
 # Start with offset 0
-python scripts/rpc_client.py aria2.tellStopped 0 100
+python3 scripts/rpc_client.py aria2.tellStopped 0 100
 # If 100 items returned, get next batch
-python scripts/rpc_client.py aria2.tellStopped 100 100
+python3 scripts/rpc_client.py aria2.tellStopped 100 100
 # Continue until empty array returned
 ```
 
@@ -302,7 +302,7 @@ Get options for a specific download.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.getOption 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.getOption 2089b05ecca3d829
 ```
 
 ### aria2.changeOption
@@ -317,7 +317,7 @@ Change options for an active download.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 '{"max-download-limit":"1048576"}'
+python3 scripts/rpc_client.py aria2.changeOption 2089b05ecca3d829 '{"max-download-limit":"1048576"}'
 ```
 
 **Common options:**
@@ -336,7 +336,7 @@ Get global aria2 options.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.getGlobalOption
+python3 scripts/rpc_client.py aria2.getGlobalOption
 ```
 
 ### aria2.changeGlobalOption
@@ -350,7 +350,7 @@ Change global aria2 options.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.changeGlobalOption '{"max-concurrent-downloads":"5"}'
+python3 scripts/rpc_client.py aria2.changeGlobalOption '{"max-concurrent-downloads":"5"}'
 ```
 
 **Common options:**
@@ -372,7 +372,7 @@ Remove completed/error/removed downloads from memory to free up resources.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.purgeDownloadResult
+python3 scripts/rpc_client.py aria2.purgeDownloadResult
 ```
 
 **Note:** This only removes download results from memory, not the downloaded files.
@@ -388,7 +388,7 @@ Remove a specific download result from memory.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.removeDownloadResult 2089b05ecca3d829
+python3 scripts/rpc_client.py aria2.removeDownloadResult 2089b05ecca3d829
 ```
 
 **When to use:**
@@ -433,7 +433,7 @@ Get aria2 version and enabled feature information.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py aria2.getVersion
+python3 scripts/rpc_client.py aria2.getVersion
 ```
 
 ### system.listMethods
@@ -446,7 +446,7 @@ List all available RPC methods.
 
 **Script call:**
 ```bash
-python scripts/rpc_client.py system.listMethods
+python3 scripts/rpc_client.py system.listMethods
 ```
 
 **Note:** This method does not require authentication.
@@ -463,7 +463,7 @@ Execute multiple RPC methods in a single request (batch operation).
 **Returns:** `array` - Results for each method call in order
 
 **Example (Python):**
-```python
+```python3
 from scripts.rpc_client import Aria2RpcClient
 from scripts.config_loader import Aria2Config
 

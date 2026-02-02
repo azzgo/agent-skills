@@ -29,6 +29,7 @@ A comprehensive skill to control the `aria2` download manager via JSON-RPC.
 
 1.  **aria2c Daemon**: You need `aria2c` running with RPC enabled.
 2.  **Network Access**: The agent needs access to the RPC port.
+3.  **WebSocket Support** (Optional): If using WebSocket connections, ensure Python version matches the requirements of the `websockets` package.
 
 **Quick Start (Local):**
 ```bash
