@@ -137,6 +137,100 @@ See `AGENTS.md` for comprehensive development guidelines, including:
 - Documentation requirements
 - Code style guidelines
 
+## Skill Features
+
+### Three-Milestone Implementation
+
+The skill is organized in three milestones for progressive feature adoption:
+
+**Milestone 1 - Core Operations**
+- `aria2.addUri` - Add HTTP/HTTPS/FTP downloads
+- `aria2.tellStatus` - Query download progress and status
+- `aria2.remove` - Remove downloads
+- `aria2.getGlobalStat` - View global statistics
+
+**Milestone 2 - Batch Operations**
+- Pause/unpause individual or all downloads
+- List downloads by state (active, waiting, stopped)
+- Modify download and global options
+- Maintenance operations (purge results, remove records)
+
+**Milestone 3 - Advanced Features**
+- BitTorrent support (`aria2.addTorrent`)
+- Metalink support (`aria2.addMetalink`)
+- WebSocket event notifications (optional)
+- Batch multicall operations
+
+### Testing
+
+Comprehensive test coverage:
+- Unit tests for all core functionality
+- Integration tests with mock aria2 server
+- Support for testing without real aria2 daemon
+
+```bash
+# Run unit tests
+just test-m1
+just test-m2
+just test-m3
+
+# Run integration tests
+cd skills/aria2-json-rpc/tests/integration
+python run_integration_tests.py
+```
+
+### Zero Dependencies (Milestones 1-2)
+
+Core functionality requires only Python 3.6+ with builtin modules:
+- `urllib.request` for HTTP POST
+- `json` for JSON-RPC formatting
+- `os` for environment variables
+- `base64` for encoding (Milestone 3)
+
+Optional: `websockets` library for real-time event notifications.
+
+### Security
+
+- Token-based authentication support
+- Environment variable secret storage
+- HTTPS transport option
+- No secrets committed to repository
+
+## Deployment
+
+### Skill Registration
+
+The skill is ready for OpenCode agent framework integration:
+
+1. **Skill Structure**: `skills/aria2-json-rpc/`
+   - `SKILL.md` - Skill definition and usage
+   - `scripts/` - Implementation scripts
+   - `assets/` - Configuration templates
+   - `references/` - Documentation and release notes
+   - `tests/` - Unit and integration tests
+
+2. **Verification**: All artifacts present and validated
+3. **Testing**: Full test suite passes
+4. **Documentation**: Complete user and developer docs
+
+### Rollback Capability
+
+Each milestone is additive with no breaking changes:
+- Milestone 1: Foundation (always required)
+- Milestone 2: Adds batch operations (optional)
+- Milestone 3: Adds torrent/WebSocket (optional)
+
+To rollback:
+- Remove milestone-specific scripts if needed
+- Configuration format remains unchanged
+- Core functionality preserved
+
+### Release Notes
+
+- [Milestone 1 Release Notes](skills/aria2-json-rpc/references/RELEASE_NOTES_M1.md)
+- [Milestone 2 Release Notes](skills/aria2-json-rpc/references/RELEASE_NOTES_M2.md)
+- [Milestone 3 Release Notes](skills/aria2-json-rpc/references/RELEASE_NOTES_M3.md)
+
 ## License
 
 MIT (see `LICENSE`).

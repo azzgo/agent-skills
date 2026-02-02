@@ -4,7 +4,7 @@ description: Interact with aria2 download manager via JSON-RPC 2.0. Manage downl
 ---
 
 Use this skill when working with aria2 download manager or when the user wants to:
-- Download files from URLs (HTTP/HTTPS/FTP/Magnet)
+- Download files from URLs (HTTP/HTTPS/FTP/Magnet), Torrents, or Metalinks
 - Check download progress and status
 - Manage active downloads (pause, resume, remove)
 - View global download statistics
@@ -21,13 +21,15 @@ When the user wants to download something or manage aria2 downloads:
 3. **Execute the RPC call** - send request to aria2 daemon
 4. **Return results** - present results in user-friendly format
 
-## What You Can Do
+## Capabilities
 
 ### Download Management
 
 **Start downloads:**
 - "download <url>" - Download a file from URL
 - "download <url1> <url2> ..." - Download multiple files at once
+- "add torrent <file>" - Download from a torrent file
+- "add metalink <file>" - Download from a metalink file
 
 **Control downloads:**
 - "pause GID <id>" - Pause a specific download
@@ -146,40 +148,229 @@ User: "show options for GID 2089b05ecca3d829"
 → Shows max speed, connections, save directory, etc.
 ```
 
-**Using example scripts for detailed control:**
-```bash
-# Pause all downloads at once
-python scripts/examples/pause-all.py
+## API Reference
 
-# See detailed status of all downloads
-python scripts/examples/list-downloads.py
+### Download Operations
 
-# Limit download speed to 1 MB/s
-python scripts/examples/set-options.py --gid 2089b05ecca3d829 --max-download-limit 1M
+**aria2.addUri** - Add a new download
+- Parameters: `uris` (array), `options` (object, optional)
+- Returns: GID (16-character hex string)
+- Example: `addUri(["http://example.com/file.zip"])`
 
-# Set max concurrent downloads to 3
-python scripts/examples/set-options.py --global --max-concurrent-downloads 3
+**aria2.addTorrent** - Add torrent download
+- Parameters: `torrent` (base64 string), `uris` (array, optional), `options` (object, optional)
+- Returns: GID
+- Example: `addTorrent(base64data, [], {"dir": "/tmp"})`
+
+**aria2.addMetalink** - Add metalink download
+- Parameters: `metalink` (base64 string), `options` (object, optional)
+- Returns: Array of GIDs
+- Example: `addMetalink(base64data, {"dir": "/tmp"})`
+
+### Control Operations
+
+**aria2.pause** - Pause active download
+- Parameters: `gid` (string)
+- Returns: GID of paused download
+- Example: `pause("2089b05ecca3d829")`
+
+**aria2.pauseAll** - Pause all active downloads
+- Parameters: none
+- Returns: "OK"
+- Example: `pauseAll()`
+
+**aria2.unpause** - Resume paused download
+- Parameters: `gid` (string)
+- Returns: GID of resumed download
+- Example: `unpause("2089b05ecca3d829")`
+
+**aria2.unpauseAll** - Resume all paused downloads
+- Parameters: none
+- Returns: "OK"
+- Example: `unpauseAll()`
+
+**aria2.remove** - Remove a download
+- Parameters: `gid` (string)
+- Returns: GID of removed download
+- Example: `remove("2089b05ecca3d829")`
+
+**aria2.purgeDownloadResult** - Clear completed download history
+- Parameters: none
+- Returns: "OK"
+- Example: `purgeDownloadResult()`
+
+**aria2.removeDownloadResult** - Remove specific download record
+- Parameters: `gid` (string)
+- Returns: "OK"
+- Example: `removeDownloadResult("2089b05ecca3d829")`
+
+### Monitoring Operations
+
+**aria2.tellStatus** - Get download status
+- Parameters: `gid` (string), `keys` (array, optional)
+- Returns: Status object with progress, speed, and metadata
+- Example: `tellStatus("2089b05ecca3d829")`
+
+**aria2.tellActive** - List active downloads
+- Parameters: `keys` (array, optional)
+- Returns: Array of download status objects
+- Example: `tellActive()`
+
+**aria2.tellWaiting** - List waiting downloads
+- Parameters: `offset` (int), `num` (int), `keys` (array, optional)
+- Returns: Array of waiting download objects
+- Example: `tellWaiting(0, 100)`
+
+**aria2.tellStopped** - List stopped downloads
+- Parameters: `offset` (int), `num` (int), `keys` (array, optional)
+- Returns: Array of stopped download objects
+- Example: `tellStopped(0, 100)`
+
+**aria2.getGlobalStat** - Get global statistics
+- Parameters: none
+- Returns: Global stats object with active/waiting/stopped counts
+- Example: `getGlobalStat()`
+
+### Configuration Operations
+
+**aria2.getOption** - Get download options
+- Parameters: `gid` (string)
+- Returns: Options object
+- Example: `getOption("2089b05ecca3d829")`
+
+**aria2.changeOption** - Change download options
+- Parameters: `gid` (string), `options` (object)
+- Returns: "OK"
+- Example: `changeOption("2089b05ecca3d829", {"max-download-limit": "1M"})`
+
+**aria2.getGlobalOption** - Get global options
+- Parameters: none
+- Returns: Global options object
+- Example: `getGlobalOption()`
+
+**aria2.changeGlobalOption** - Change global options
+- Parameters: `options` (object)
+- Returns: "OK"
+- Example: `changeGlobalOption({"max-concurrent-downloads": "3"})`
+
+### System Operations
+
+**aria2.getVersion** - Get aria2 version info
+- Parameters: none
+- Returns: Version and enabled features
+- Example: `getVersion()`
+
+**system.listMethods** - List all available RPC methods
+- Parameters: none
+- Returns: Array of method names
+- Example: `listMethods()`
+
+## Natural Language Commands
+
+### Downloads
+- "download http://example.com/file.zip"
+- "add torrent file.torrent"
+- "add metalink file.metalink"
+
+### Status & Monitoring
+- "show status for GID 2089b05ecca3d829"
+- "list active downloads"
+- "list waiting downloads"
+- "list stopped downloads"
+- "show global stats"
+- "monitor downloads via WebSocket"
+
+### Control
+- "pause GID 2089b05ecca3d829"
+- "pause all downloads"
+- "resume GID 2089b05ecca3d829"
+- "resume all downloads"
+- "remove download 2089b05ecca3d829"
+- "purge completed downloads"
+
+### Configuration & System
+- "show options for GID 2089b05ecca3d829"
+- "set speed limit for GID 2089b05ecca3d829 to 1M"
+- "show aria2 version"
+- "list available methods"
+
+## Troubleshooting
+
+### Connection Issues
+
+**Error**: "Cannot connect to aria2 RPC server"
+- Check if aria2 daemon is running: `ps aux | grep aria2c`
+- Verify RPC is enabled: aria2c should be started with `--enable-rpc`
+- Check firewall settings for port 6800
+- Verify host/port configuration matches aria2 settings
+
+**Error**: "Authentication failed"
+- Check if secret token is correct
+- Verify `ARIA2_RPC_SECRET` or config.json secret matches aria2 `--rpc-secret`
+- Note: `system.listMethods` doesn't require authentication
+
+### Download Issues
+
+**Error**: "GID not found"
+- The download may have been removed or completed
+- Check stopped downloads: `tellStopped(0, 100)`
+- Downloads are purged automatically based on aria2 settings
+
+**Error**: "Download not active"
+- Cannot pause a download that's not active
+- Check current status with `tellStatus(gid)`
+- May already be paused or completed
+
+### Performance Issues
+
+**Slow downloads**: Check and adjust options
+```python
+# Limit concurrent downloads
+changeGlobalOption({"max-concurrent-downloads": "5"})
+
+# Increase connections per server
+changeOption(gid, {"max-connection-per-server": "4"})
+
+# Enable split downloading
+changeOption(gid, {"split": "10"})
 ```
 
-## Example Scripts
+## Security Best Practices
 
-The `scripts/examples/` directory contains ready-to-use scripts:
+### Token Authentication
+- Always use `--rpc-secret` when running aria2c in production
+- Store secret in environment variable, not in code
+- Use strong, random tokens (32+ characters)
+- Regenerate tokens periodically
 
-- **pause-all.py** - Pause all active downloads
-- **list-downloads.py** - List all downloads across all states with progress
-- **set-options.py** - Modify download or global options with user-friendly interface
+### Network Security
+- Bind RPC to localhost only: `--rpc-listen-address=127.0.0.1`
+- Use HTTPS with `--rpc-secure` if remote access needed
+- Configure firewall to restrict access to port 6800
+- Consider SSH tunnel for remote access instead of exposing RPC
 
-## Output Format
+### Configuration Security
+```bash
+# Set restrictive permissions
+chmod 600 config.json
 
-Results are returned as structured data with:
-- **Success**: Human-readable summary with key metrics
-- **Error**: Clear error message explaining what went wrong
+# Use environment variables for secrets
+export ARIA2_RPC_SECRET=$(cat /secure/path/to/secret)
 
-## Requirements
+# Never commit secrets to version control
+echo "config.json" >> .gitignore
+```
 
-- aria2 daemon running with RPC enabled (`--enable-rpc`)
-- Network access to aria2 RPC endpoint
-- Python 3.6+ for script execution
+## Error Messages and Solutions
+
+| Error Code | Message | Solution |
+|------------|---------|----------|
+| 1 | GID not found | Check if download exists with tellStatus or list appropriate state |
+| 1 | Download not active | Verify status before pause/unpause operations |
+| -32601 | Method not found | Check method name spelling and aria2 version |
+| -32700 | Parse error | Check JSON format in request |
+| Connection refused | Cannot connect | Verify aria2 is running with RPC enabled |
+| Auth failed | Invalid token | Check secret token configuration |
 
 ## Reference
 
