@@ -42,21 +42,25 @@ README.md                    # Repository overview
 
 ### Running Tests
 
+All test commands are managed through the `justfile`:
+
 ```bash
-# Run all tests (unit + integration)
+# Run all tests (M1, M2, M3 with isolated dependencies)
 just test
 
-# Run unit tests only
-just test-unit
+# Run specific milestone tests
+just test-m1   # Milestone 1 (no external deps)
+just test-m2   # Milestone 2 (no external deps)
+just test-m3   # Milestone 3 (installs websockets in isolated env)
 
 # Run integration tests only
 just test-mock-server
 
-# Run a specific test file
+# Run a specific test file (no dependencies)
 just test-file tests/unit/test_rpc_client.py
 
-# Run a specific test method (unittest format)
-python3 -m unittest tests.unit.test_rpc_client.TestAria2RpcClient.test_client_initialization
+# Run a specific test file with UV (for files needing dependencies)
+just test-file-uv tests/unit/test_milestone3.py
 ```
 
 ### Running Scripts
@@ -358,9 +362,309 @@ if __name__ == "__main__":
 - Update documentation when changing behavior
 - Never commit secrets or personal configuration
 
+## Dependency Management with UV
+
+### Overview
+
+This project uses **UV** (https://github.com/astral-sh/uv) for Python dependency management to maintain a clean global environment. UV provides fast, isolated dependency installation without polluting the system Python.
+
+### Why UV?
+
+1. **Isolation**: Dependencies are installed in isolated environments, not globally
+2. **Speed**: Significantly faster than pip for package installation
+3. **No global pollution**: System Python remains clean
+4. **Reproducible**: Consistent dependency resolution across machines
+5. **Optional dependencies**: Easy to separate required vs optional dependencies
+
+### Project Dependency Structure
+
+This project follows a zero-dependency approach for core functionality:
+
+- **Milestones 1-2** (aria2-json-rpc core): Zero external dependencies (Python 3.6+ builtin only)
+  - Uses only: `urllib.request`, `json`, `base64`, `os`, `sys`
+  - No external packages required
+  
+- **Milestone 3** (aria2-json-rpc WebSocket): Optional WebSocket support
+  - `websockets>=10.0` (optional, for WebSocket client)
+  - HTTP POST remains fully functional without it
+
+### Installation
+
+Install UV (one-time setup):
+```bash
+# macOS/Linux (recommended)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Or with Homebrew
+brew install uv
+
+# Or with pip (not recommended for global environment)
+pip install uv
+```
+
+### Running Tests
+
+Use the provided test commands managed by `justfile`:
+
+```bash
+# Run all tests (installs optional dependencies in isolated env)
+just test
+
+# Run specific milestone
+just test-m1   # Core functionality (no deps)
+just test-m2   # Advanced features (no deps)
+just test-m3   # WebSocket features (auto-installs websockets)
+```
+
+The test runner:
+- Checks if UV is installed
+- Installs dependencies only when needed (M3 tests)
+- Uses isolated environment (no global pollution)
+- Provides clear output with color-coded results
+
+### Manual UV Commands
+
+For advanced usage or debugging:
+
+```bash
+# Install optional dependencies (websockets) in isolated environment
+uv pip install websockets
+
+# Run Python script with UV
+uv run python script.py
+
+# Run tests with UV
+uv run python -m pytest tests/unit/
+
+# Run specific test file
+uv run python -m pytest tests/unit/test_milestone3.py -v
+
+# Check installed packages in UV environment
+uv pip list
+```
+
+### Project Configuration
+
+Dependencies are defined in `pyproject.toml`:
+
+```toml
+[project]
+name = "aria2-json-rpc-skills"
+requires-python = ">=3.6"
+
+# Core: no mandatory dependencies (builtin only)
+dependencies = []
+
+[project.optional-dependencies]
+# Milestone 3 WebSocket support (optional)
+websocket = [
+    "websockets>=10.0",
+]
+
+# Development and testing
+dev = [
+    "websockets>=10.0",
+]
+```
+
+### Rules for AI Agents
+
+**CRITICAL**: When working on this project, AI agents MUST follow these rules to avoid polluting the global environment:
+
+#### 1. Never Install Packages Globally
+
+❌ **WRONG** - Pollutes global Python:
+```bash
+pip install websockets
+python -m pytest tests/
+```
+
+✅ **CORRECT** - Uses isolated UV environment:
+```bash
+uv pip install websockets
+uv run python -m pytest tests/
+```
+
+✅ **BEST** - Use the test runner:
+```bash
+./run_tests.sh milestone3
+```
+
+#### 2. Use UV for All Python Operations
+
+- Running scripts: `uv run python script.py`
+- Running tests: `uv run python -m pytest tests/` or `./run_tests.sh`
+- Installing deps: `uv pip install package-name`
+- Checking environment: `uv pip list`
+
+#### 3. Keep Builtin-Only for Core Features
+
+- Don't add external dependencies to Milestone 1-2 functionality
+- Only Milestone 3 (WebSocket) can use optional dependencies
+- All core features must work with Python 3.6+ builtin modules only
+
+#### 4. Test with Isolation
+
+- Always use `./run_tests.sh` or `uv run pytest`
+- Never assume packages are globally available
+- Test that code works without optional dependencies
+- Verify graceful fallback when optional deps missing
+
+#### 5. Document New Dependencies
+
+When adding any external dependency:
+- Add to `[project.optional-dependencies]` in `pyproject.toml`
+- Mark clearly as optional in code comments
+- Implement graceful fallback when missing
+- Update dependency check in `dependency_check.py`
+- Document in skill's SKILL.md or references
+
+### Testing Workflow for Agents
+
+Standard workflow when running or modifying tests:
+
+```bash
+# 1. Test core functionality (no external deps)
+just test-m1
+just test-m2
+
+# 2. Test optional features (UV installs websockets in isolated env)
+just test-m3
+
+# 3. Run all tests together
+just test
+
+# 4. If tests fail, debug with verbose output
+just test-file-uv tests/unit/test_milestone3.py
+
+# 5. No manual cleanup needed - UV manages isolation automatically
+```
+
+### Dependency Check in Code
+
+Runtime dependency checking pattern:
+
+```python
+from dependency_check import check_optional_websockets
+
+# Check if optional dependency is available
+if check_optional_websockets():
+    from websocket_client import Aria2WebSocketClient
+    # Use WebSocket features
+    print("✓ WebSocket support available")
+else:
+    # Fall back to HTTP POST
+    print("⚠ WebSocket features disabled (websockets library not installed)")
+    print("  Install with: uv pip install websockets")
+```
+
+### CI/CD Integration
+
+For continuous integration pipelines:
+
+```yaml
+# Example GitHub Actions
+steps:
+  - name: Install UV
+    run: curl -LsSf https://astral.sh/uv/install.sh | sh
+  
+  - name: Install Just
+    run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+  
+  - name: Add to PATH
+    run: echo "$HOME/bin" >> $GITHUB_PATH
+  
+  - name: Run tests
+    run: just test
+```
+
+### Troubleshooting
+
+**Problem**: `uv: command not found`
+```bash
+# Solution: Install UV
+just install-uv
+# Or manually:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+**Problem**: `just: command not found`
+```bash
+# Solution: Install Just (command runner)
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+export PATH="$HOME/bin:$PATH"
+
+# Or with Homebrew
+brew install just
+```
+
+**Problem**: Tests fail with import errors
+```bash
+# Solution: Use just commands (handles UV automatically)
+just test-m3
+
+# Or run with UV directly
+uv run python -m pytest tests/unit/test_milestone3.py -v
+```
+
+**Problem**: Want to verify no global pollution
+```bash
+# Check global pip (should not have websockets unless you want it there)
+pip list | grep websockets
+
+# Check UV environment (websockets should be here for M3 tests)
+uv pip list | grep websockets
+```
+
+**Problem**: Want to clean UV cache
+```bash
+# UV manages its own cache, but if needed:
+uv cache clean
+```
+uv cache clean
+```
+
+### Benefits Summary
+
+Using UV provides these critical benefits:
+
+- ✅ **Global Python stays clean** - No accidental package installations
+- ✅ **Fast installation** - Significantly faster than pip
+- ✅ **Consistent environments** - Same dependencies across machines
+- ✅ **Easy optional deps** - Clear separation of required vs optional
+- ✅ **No version conflicts** - Isolated from other projects
+- ✅ **Reproducible builds** - Deterministic dependency resolution
+- ✅ **Zero maintenance** - Auto-cleanup, no manual intervention needed
+
+### Migration from pip
+
+If you were previously using pip:
+
+```bash
+# ❌ Old way (pollutes global environment)
+pip install websockets
+python -m pytest tests/
+
+# ✅ New way (isolated with UV)
+uv pip install websockets
+uv run python -m pytest tests/
+
+# ✅ Best way (use test runner)
+./run_tests.sh milestone3
+```
+
+### Key Files
+
+- `pyproject.toml` - Dependency configuration
+- `run_tests.sh` - Test runner with UV integration
+- `tests/unit/test_milestone3.py` - Tests requiring optional dependencies
+- `skills/aria2-json-rpc/scripts/dependency_check.py` - Runtime dependency checks
+
 ## Getting Help
 
 - **Skill-specific questions**: Read `skills/<skill-name>/SKILL.md` and `skills/<skill-name>/references/`
 - **Repository structure**: See this file (AGENTS.md)
 - **Design decisions**: Check `openspec/changes/<skill-name>/` for planning docs
 - **Examples**: Look at existing skills like `aria2-json-rpc` as reference
+- **UV issues**: See UV documentation at https://github.com/astral-sh/uv

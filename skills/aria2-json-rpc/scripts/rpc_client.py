@@ -14,6 +14,8 @@ import urllib.request
 import urllib.error
 import sys
 import time
+import base64
+import os
 from typing import Any, Dict, List, Optional, Union
 
 
@@ -490,6 +492,112 @@ class Aria2RpcClient:
             List of results corresponding to each call
         """
         return self.call("system.multicall", [calls])
+
+    # Milestone 3 methods
+
+    def add_torrent(
+        self,
+        torrent: Union[str, bytes],
+        uris: List[str] = None,
+        options: Dict[str, Any] = None,
+        position: int = None,
+    ) -> str:
+        """
+        Add a new download from a torrent file.
+
+        Args:
+            torrent: Torrent file path, bytes content, or base64-encoded string
+            uris: Web seed URIs (optional)
+            options: Download options (optional)
+            position: Position in download queue (optional)
+
+        Returns:
+            GID (Global ID) of the new torrent download task
+        """
+        # Convert torrent to base64 if needed
+        if isinstance(torrent, str):
+            # Check if it's already base64 or a file path
+            if os.path.isfile(torrent):
+                # Read file and encode to base64
+                with open(torrent, "rb") as f:
+                    torrent_bytes = f.read()
+                torrent_base64 = base64.b64encode(torrent_bytes).decode("utf-8")
+            else:
+                # Assume it's already base64
+                torrent_base64 = torrent
+        elif isinstance(torrent, bytes):
+            # Encode bytes to base64
+            torrent_base64 = base64.b64encode(torrent).decode("utf-8")
+        else:
+            raise ValueError(
+                "torrent must be a file path (str), bytes content, or base64 string"
+            )
+
+        params = [torrent_base64]
+        if uris:
+            params.append(uris)
+        elif options or position is not None:
+            # If uris is not provided but options/position is, add empty list
+            params.append([])
+
+        if options:
+            params.append(options)
+        elif position is not None:
+            # If options is not provided but position is, add empty dict
+            params.append({})
+
+        if position is not None:
+            params.append(position)
+
+        return self.call("aria2.addTorrent", params)
+
+    def add_metalink(
+        self,
+        metalink: Union[str, bytes],
+        options: Dict[str, Any] = None,
+        position: int = None,
+    ) -> List[str]:
+        """
+        Add new downloads from a metalink file.
+
+        Args:
+            metalink: Metalink file path, bytes content, or base64-encoded string
+            options: Download options (optional)
+            position: Position in download queue (optional)
+
+        Returns:
+            List of GIDs for each download defined in the metalink
+        """
+        # Convert metalink to base64 if needed
+        if isinstance(metalink, str):
+            # Check if it's already base64 or a file path
+            if os.path.isfile(metalink):
+                # Read file and encode to base64
+                with open(metalink, "rb") as f:
+                    metalink_bytes = f.read()
+                metalink_base64 = base64.b64encode(metalink_bytes).decode("utf-8")
+            else:
+                # Assume it's already base64
+                metalink_base64 = metalink
+        elif isinstance(metalink, bytes):
+            # Encode bytes to base64
+            metalink_base64 = base64.b64encode(metalink).decode("utf-8")
+        else:
+            raise ValueError(
+                "metalink must be a file path (str), bytes content, or base64 string"
+            )
+
+        params = [metalink_base64]
+        if options:
+            params.append(options)
+        elif position is not None:
+            # If options is not provided but position is, add empty dict
+            params.append({})
+
+        if position is not None:
+            params.append(position)
+
+        return self.call("aria2.addMetalink", params)
 
 
 def main():

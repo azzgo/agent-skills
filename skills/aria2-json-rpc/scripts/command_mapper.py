@@ -128,6 +128,17 @@ class CommandMapper:
             r"^what\s+methods?\s+are\s+available",
             r"^available\s+(?:rpc\s+)?methods?",
         ],
+        # Milestone 3: addTorrent patterns
+        "add_torrent": [
+            r"^(?:add|download)\s+torrent\s+(.+\.torrent)",
+            r"^download\s+from\s+torrent\s+(.+\.torrent)",
+            r"^(?:add|start)\s+bittorrent\s+(.+\.torrent)",
+        ],
+        # Milestone 3: addMetalink patterns
+        "add_metalink": [
+            r"^(?:add|download)\s+metalink\s+(.+\.metalink)",
+            r"^download\s+from\s+metalink\s+(.+\.metalink)",
+        ],
     }
 
     def __init__(self):
@@ -191,6 +202,9 @@ class CommandMapper:
             "remove_download_result": "aria2.removeDownloadResult",
             "get_version": "aria2.getVersion",
             "list_methods": "system.listMethods",
+            # Milestone 3
+            "add_torrent": "aria2.addTorrent",
+            "add_metalink": "aria2.addMetalink",
         }
         return mapping.get(method, method)
 
@@ -292,6 +306,17 @@ class CommandMapper:
         elif method == "list_methods":
             # No parameters needed
             return []
+
+        # Milestone 3 methods
+        elif method == "add_torrent":
+            # Extract torrent file path
+            torrent_path = match.group(1).strip()
+            return [torrent_path]
+
+        elif method == "add_metalink":
+            # Extract metalink file path
+            metalink_path = match.group(1).strip()
+            return [metalink_path]
 
         return []
 
@@ -414,6 +439,17 @@ class CommandMapper:
                 "show available methods",
                 "list RPC methods",
                 "what methods are available",
+            ],
+            # Milestone 3
+            "add_torrent": [
+                "add torrent /path/to/file.torrent",
+                "download torrent ubuntu-20.04.torrent",
+                "download from torrent movie.torrent",
+            ],
+            "add_metalink": [
+                "add metalink file.metalink",
+                "download metalink archive.metalink",
+                "download from metalink package.metalink",
             ],
         }
 

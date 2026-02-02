@@ -1,0 +1,28 @@
+[project]
+name = "aria2-json-rpc-skills"
+version = "0.3.0"
+description = "Comprehensive aria2 JSON-RPC 2.0 skill for AI agents"
+requires-python = ">=3.7"
+readme = "README.md"
+
+# No mandatory dependencies - all builtin for Milestones 1-2
+dependencies = []
+
+[project.optional-dependencies]
+# Milestone 3: WebSocket support (optional)
+websocket = [
+    "websockets>=10.0",
+]
+
+# Development and testing dependencies
+dev = [
+    "pytest>=7.0",
+    "websockets>=10.0",
+]
+
+[dependency-groups]
+# Development and testing dependencies (UV format)
+dev = [
+    "pytest>=7.0",
+    "websockets>=10.0",
+]

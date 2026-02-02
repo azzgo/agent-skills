@@ -69,13 +69,74 @@ Example:
 ```text
 skills/
   aria2-json-rpc/
-    SKILL.md
-    config.example.json
+    SKILL.md                      # Skill definition
+    config.example.json           # Configuration template
+    scripts/                      # Implementation scripts
+    references/                   # Technical documentation
 openspec/
   changes/
-    aria2-json-rpc-skill/     # design + milestone plan (work-in-progress)
+    aria2-json-rpc-skill/         # Design + milestone plan
+tests/
+  unit/                           # Unit tests
+  integration/                    # Integration tests
+justfile                          # Test commands
+pyproject.toml                    # Dependency configuration (UV)
+run_tests.sh                      # Test runner (called by justfile)
+AGENTS.md                         # AI agent guidelines
 ```
+
+## Development
+
+### Requirements
+
+- Python 3.6+
+- [UV](https://github.com/astral-sh/uv) for dependency management (optional, for Milestone 3 WebSocket features)
+- [Just](https://just.systems/) command runner
+
+### Running Tests
+
+All test commands use `justfile`:
+
+```bash
+# Run all tests
+just test
+
+# Run specific milestone tests
+just test-m1   # Milestone 1 (no external deps)
+just test-m2   # Milestone 2 (no external deps)
+just test-m3   # Milestone 3 (auto-installs websockets in isolated env)
+
+# Run specific test file
+just test-file tests/unit/test_rpc_client.py
+just test-file-uv tests/unit/test_milestone3.py  # For files needing dependencies
+```
+
+### Installing Dependencies
+
+UV is optional and only needed for Milestone 3 (WebSocket) features:
+
+```bash
+# Check if UV is installed
+just check-uv
+
+# Install UV (one-time setup)
+just install-uv
+
+# Or install manually
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Note**: Milestones 1-2 use only Python builtin libraries and have zero external dependencies.
+
+### For AI Agents
+
+See `AGENTS.md` for comprehensive development guidelines, including:
+- Repository structure and naming conventions
+- Dependency management with UV (critical: no global pollution)
+- Testing standards and workflows
+- Documentation requirements
+- Code style guidelines
 
 ## License
 
-MIT (see `LISENCE`).
+MIT (see `LICENSE`).

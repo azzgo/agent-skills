@@ -53,26 +53,26 @@
 
 ## 3. Milestone 3: Advanced Features (Optional Dependencies)
 
-- [ ] 3.1 Implement aria2.addTorrent method (add torrent file from base64 or file path)
-- [ ] 3.2 Implement aria2.addTorrentByParam method (add torrent with structure parameters)
-- [ ] 3.3 Implement aria2.addMetalink method (add metalink file from base64)
-- [ ] 3.4 Implement aria2.addMetalinkByParam method (add metalink with structure parameters)
-- [ ] 3.5 Implement WebSocket client for aria2 event notifications
-- [ ] 3.6 Implement event subscription (aria2.onDownloadStart, onDownloadPause, etc.)
-- [ ] 3.7 Implement WebSocket reconnection logic
-- [ ] 3.8 Implement WebSocket event handler registration
-- [ ] 3.9 Add optional dependency detection for websockets library
-- [ ] 3.10 Add fallback for missing websockets library (HTTP polling alternative)
-- [ ] 3.11 Implement natural language command mapping for Milestone 3 methods
-- [ ] 3.12 Add Python unit tests for torrent/metalink operations
-- [ ] 3.13 Add Python unit tests for WebSocket client
-- [ ] 3.14 Add Python unit tests for event handling
-- [ ] 3.15 Add example scripts for torrent downloads (add-torrent.py)
-- [ ] 3.16 Add example scripts for WebSocket monitoring (monitor-downloads.py)
-- [ ] 3.17 Update SKILL.md with Milestone 3 operations documentation
-- [ ] 3.18 Update references/aria2-methods.md with Milestone 3 methods
-- [ ] 3.19 Add WebSocket dependency check in dependency_check.py
-- [ ] 3.20 Document optional dependency handling in SKILL.md
+- [x] 3.1 Implement aria2.addTorrent method (add torrent file from base64 or file path)
+- [x] 3.2 Implement aria2.addTorrentByParam method (add torrent with structure parameters)
+- [x] 3.3 Implement aria2.addMetalink method (add metalink file from base64)
+- [x] 3.4 Implement aria2.addMetalinkByParam method (add metalink with structure parameters)
+- [x] 3.5 Implement WebSocket client for aria2 event notifications
+- [x] 3.6 Implement event subscription (aria2.onDownloadStart, onDownloadPause, etc.)
+- [x] 3.7 Implement WebSocket reconnection logic
+- [x] 3.8 Implement WebSocket event handler registration
+- [x] 3.9 Add optional dependency detection for websockets library
+- [x] 3.10 Add fallback for missing websockets library (HTTP polling alternative)
+- [x] 3.11 Implement natural language command mapping for Milestone 3 methods
+- [x] 3.12 Add Python unit tests for torrent/metalink operations
+- [x] 3.13 Add Python unit tests for WebSocket client
+- [x] 3.14 Add Python unit tests for event handling
+- [x] 3.15 Add example scripts for torrent downloads (add-torrent.py)
+- [x] 3.16 Add example scripts for WebSocket monitoring (monitor-downloads.py)
+- [x] 3.17 Update SKILL.md with Milestone 3 operations documentation
+- [x] 3.18 Update references/aria2-methods.md with Milestone 3 methods
+- [x] 3.19 Add WebSocket dependency check in dependency_check.py
+- [x] 3.20 Document optional dependency handling in SKILL.md
 
 ## 5. Test Infrastructure
 
