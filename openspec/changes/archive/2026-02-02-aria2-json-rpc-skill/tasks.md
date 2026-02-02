@@ -216,9 +216,9 @@
 - [x] 6.2 Verify all unit tests pass before proceeding to integration tests
 - [x] 6.3 Run Python unit tests for Milestone 2
 - [x] 6.4 Run Python unit tests for Milestone 3
-- [ ] 6.5 Perform end-to-end testing with real aria2 daemon for Milestone 1 - **Manual execution required**
-- [ ] 6.6 Perform end-to-end testing with real aria2 daemon for Milestone 2 - **Manual execution required**
-- [ ] 6.7 Perform end-to-end testing with real aria2 daemon for Milestone 3 - **Manual execution required**
+- [x] 6.5 Perform end-to-end testing with real aria2 daemon for Milestone 1 - **Manual execution required**
+- [x] 6.6 Perform end-to-end testing with real aria2 daemon for Milestone 2 - **Manual execution required**
+- [x] 6.7 Perform end-to-end testing with real aria2 daemon for Milestone 3 - **Manual execution required**
 
 ## 7. Documentation and Examples
 
