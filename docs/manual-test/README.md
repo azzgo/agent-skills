@@ -1,86 +1,80 @@
 # Manual Testing for aria2-json-rpc Skill
 
-This directory provides an isolated environment for manually testing the aria2-json-rpc skill with OpenCode.
+This is an independent test environment for the aria2-json-rpc skill with OpenCode.
+
+**Dependencies**: python3, aria2 daemon, and the aria2-json-rpc skill.
 
 ## Quick Start
 
+1. **Start aria2 daemon** (if not already running):
+   ```bash
+   aria2c --enable-rpc --rpc-listen-all=true \
+     --rpc-listen-port=6800 --rpc-secret=test-secret \
+     --rpc-allow-origin-all --dir=/tmp/aria2-test-downloads \
+     --log=/tmp/aria2-test.log -D
+   ```
+
+2. **Load the skill in OpenCode**:
+   - Skill location: `.opencode/skills/aria2-json-rpc/`
+   - Config file: `config.json` (in this directory)
+
+3. **Run tests**:
+   - Follow instructions in `instruct.md`
+   - Or use OpenCode command: `/test-aria2`
+
+4. **View results**:
+   - Results saved to `results/timestamped_run_*.md`
+
+## Check aria2 Status
+
 ```bash
-# 1. Set up the test environment
-just manual-test-setup
+# Check if aria2 is running
+ps aux | grep aria2c
 
-# 2. Start aria2 daemon for testing
-just manual-test-start-aria2 6800 test-secret
+# Check if port 6800 is in use
+lsof -i :6800
 
-# 3. Load the skill in OpenCode from:
-#    .manual-test/.opencode/skills/aria2-json-rpc/
-
-# 4. Run tests following instructions in:
-#    .manual-test/instruct.md
+# View aria2 logs
+tail -f /tmp/aria2-test.log
 ```
 
-## Available Commands
-
-### Setup Commands
+## Stop aria2
 
 ```bash
-# Initialize test environment
-just manual-test-setup
-
-# Check environment status
-just manual-test-status
-```
-
-### aria2 Server Commands
-
-```bash
-# Start aria2 daemon (port, secret)
-just manual-test-start-aria2 6800 test-secret
-
 # Stop aria2 daemon
-just manual-test-stop-aria2
+pkill -f "aria2c.*--enable-rpc"
 ```
 
-### Running Tests
-
-```bash
-# Show testing instructions
-cat .manual-test/instruct.md
-
-# Test results will be saved to:
-# .manual-test/results/timestamped_run_*.md
-```
-
-### Cleanup
-
-```bash
-# Stop aria2 and clean test environment
-just manual-test-clean
-```
-
-## Test Environment
-
-### Directory Structure
+## Directory Structure
 
 ```
-.manual-test/
+./                           (Test environment root)
 ├── .opencode/
-│   └── skills/
-│       └── aria2-json-rpc/  (symlink to actual skill)
-├── config.json              (aria2 connection config)
-├── instruct.md              (test instructions - copy from docs/manual-test/)
-├── .opencode/
+│   ├── skills/
+│   │   └── aria2-json-rpc/  (skill files)
 │   └── command/
-│       └── test-aria2.md    (copy from docs/manual-test/)
+│       └── test-aria2.md    (OpenCode command)
+├── config.json              (aria2 connection config)
+├── instruct.md              (test instructions)
+├── README.md                (this file)
 └── results/                 (test execution results)
 ```
 
-### Configuration
+## Configuration
 
-- **RPC Host**: localhost
-- **RPC Port**: 6800 (configurable)
-- **RPC Secret**: test-secret (configurable)
-- **Download Dir**: /tmp/aria2-test-downloads
-- **Log File**: /tmp/aria2-test.log
+The `config.json` file in this directory contains aria2 connection settings:
+
+```json
+{
+  "host": "localhost",
+  "port": 6800,
+  "secret": "test-secret",
+  "secure": false,
+  "timeout": 30000
+}
+```
+
+**Important**: Make sure the port and secret match your aria2 daemon settings.
 
 ## Test Coverage
 
@@ -109,46 +103,31 @@ just manual-test-clean
 
 ## Using with OpenCode
 
-1. **Load the skill** from `.manual-test/.opencode/skills/aria2-json-rpc/`
+1. **Ensure aria2 daemon is running** (see Quick Start section above)
 
-2. **Configuration** is automatically loaded from `.manual-test/config.json`:
-   ```json
-   {
-     "host": "localhost",
-     "port": 6800,
-     "secret": "test-secret",
-     "secure": false,
-     "timeout": 30000
-   }
-   ```
+2. **Load the skill** from `.opencode/skills/aria2-json-rpc/`
 
-3. **Execute tests** following the instructions in `.manual-test/instruct.md`
+3. **Configuration** is automatically loaded from `config.json` in this directory
 
-4. **Record results** in `.manual-test/results/` with timestamps
+4. **Execute tests** following the instructions in `instruct.md`
 
-## Result Format
+5. **Record results** in `results/` directory with timestamps
+
+## Test Results
 
 Each test run should create a result file: `results/timestamped_run_YYYYMMDD_HHMMSS.md`
 
 Include:
-- Test run metadata (timestamp, server type)
+- Test run metadata (timestamp, aria2 version)
 - Test results per milestone
 - Pass/fail summary
 - Issues encountered
 - Recommendations
 
-## Notes
-
-- The `.manual-test` directory is gitignored
-- Test artifacts are local and not committed
-- Skill files are symlinked from the main project
-- aria2 downloads go to `/tmp/aria2-test-downloads`
-- Logs are saved to `/tmp/aria2-test.log`
-- Source documentation maintained in `docs/manual-test/`
-
 ## Troubleshooting
 
 ### aria2 daemon won't start
+
 ```bash
 # Check if already running
 ps aux | grep aria2c
@@ -161,20 +140,15 @@ tail -f /tmp/aria2-test.log
 ```
 
 ### Tests failing
-- Verify aria2 daemon is running: `just manual-test-status`
-- Check configuration in `.manual-test/config.json`
+
+- Verify aria2 daemon is running (see "Check aria2 Status" above)
+- Check configuration in `config.json` matches aria2 daemon settings
 - Review aria2 logs: `cat /tmp/aria2-test.log`
-- Ensure skill is loaded from correct path
+- Ensure skill is loaded from `.opencode/skills/aria2-json-rpc/`
 
-## Cleanup
+## Notes
 
-To completely remove the test environment:
-
-```bash
-just manual-test-clean
-```
-
-This will:
-- Stop aria2 daemon
-- Remove `.manual-test/` directory
-- Remove test downloads from `/tmp/aria2-test-downloads/`
+- Test downloads go to `/tmp/aria2-test-downloads/`
+- aria2 logs are saved to `/tmp/aria2-test.log`
+- This environment only depends on: python3, aria2 daemon, and the skill
+- No external project dependencies required during test execution

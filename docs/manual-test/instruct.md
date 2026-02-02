@@ -3,9 +3,9 @@
 ## Prerequisites
 
 Before running tests, ensure:
-1. aria2 daemon is running (use: `just manual-test-start-aria2 6800 test-secret`)
-2. aria2-json-rpc skill is loaded from `.manual-test/.opencode/skills/aria2-json-rpc/`
-3. Configuration is loaded from `.manual-test/config.json`
+1. aria2 daemon is running on localhost:6800 with secret "test-secret"
+2. aria2-json-rpc skill is loaded from `.opencode/skills/aria2-json-rpc/`
+3. Configuration is loaded from `config.json` in the current directory
 
 ## Test Configuration
 

@@ -5,18 +5,18 @@ description: Run manual tests for aria2-json-rpc skill
 Run the manual test suite for aria2-json-rpc skill.
 
 **Prerequisites:**
-1. aria2 daemon is running (check: `just manual-test-status`)
-2. Test environment is set up (run: `just manual-test-setup`)
-3. aria2-json-rpc skill is loaded from `.manual-test/.opencode/skills/aria2-json-rpc/`
+1. aria2 daemon is running on localhost:6800
+2. aria2-json-rpc skill is loaded from `.opencode/skills/aria2-json-rpc/`
+3. Configuration file `config.json` exists in the current directory
 
 **Steps:**
 
 1. **Verify test environment**
    - Check that aria2 daemon is running on port 6800
-   - Verify configuration is loaded from `.manual-test/config.json`
+   - Verify configuration is loaded from `config.json`
 
 2. **Read test instructions**
-   - Load and read `.manual-test/instruct.md` for complete test instructions
+   - Load and read `instruct.md` for complete test instructions
    - Understand test configuration and coverage
 
 3. **Execute tests milestone by milestone**
@@ -26,7 +26,7 @@ Run the manual test suite for aria2-json-rpc skill.
    - Proceed to Milestone 2 and 3 if Milestone 1 passes
 
 4. **Record test results**
-   - Create a timestamped result file in `.manual-test/results/`
+   - Create a timestamped result file in `results/` directory
    - Format: `timestamped_run_YYYYMMDD_HHMMSS.md`
    - Include: test status, tool calls, responses, verification results
 
@@ -36,13 +36,13 @@ Run the manual test suite for aria2-json-rpc skill.
    - Provide recommendations for improvement
 
 **Test Configuration:**
-- Skill path: `.manual-test/.opencode/skills/aria2-json-rpc/`
-- Config file: `.manual-test/config.json`
-- Instructions: `.manual-test/instruct.md`
-- Results directory: `.manual-test/results/`
+- Skill path: `.opencode/skills/aria2-json-rpc/`
+- Config file: `config.json` (in current directory)
+- Instructions: `instruct.md` (in current directory)
+- Results directory: `results/` (in current directory)
 
 **Output:**
-- Test run report in `.manual-test/results/`
+- Test run report in `results/`
 - Pass/fail summary per milestone
 - Issues and recommendations
 - Next steps for follow-up
