@@ -14,18 +14,6 @@ tests/
 │       └── test_milestone3.py     # Milestone 3 features tests
 │
 ├── integration/                    # Integration tests
-│   └── aria2-json-rpc-skill/      # Integration tests for aria2-json-rpc skill
-│       ├── mock_aria2_server.py   # Mock aria2 server for testing
-│       ├── scenarios/             # Test scenarios in JSON format
-│       │   ├── milestone1_scenarios.json
-│       │   ├── milestone2_scenarios.json
-│       │   ├── milestone3_scenarios.json
-│       │   └── all_scenarios.json
-│       └── llm_eval/              # LLM evaluation framework
-│           ├── test_runner.py
-│           ├── executor.py
-│           ├── evaluator.py
-│           └── ...
 │
 └── README.md                       # This file
 ```
@@ -133,7 +121,7 @@ When adding a new skill, follow this pattern:
 Tests use UV for isolated dependency management:
 
 - **Unit Tests**: Generally require no external dependencies beyond Python stdlib
-- **Integration Tests**: May require additional packages (e.g., `websockets`)
+- **Integration Tests**: Manual semi-automated testing via justfile commands (e.g., `just manual-test-setup`, `just manual-test-run`). See `justfile` for available commands and `docs/manual-test/` for detailed instructions.
 - **Dependency Isolation**: UV ensures test dependencies don't pollute the global Python environment
 
 See `run_tests.sh` for automatic dependency management.
