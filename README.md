@@ -105,6 +105,77 @@ python3 scripts/config_loader.py test
 
 ---
 
+### quote0-dot-screen 🚧
+
+A skill to control Quote/0 electronic screen devices via the Dot Developer Platform APIs.
+
+**Status: In Development**
+
+**Key Features:**
+- **Device Management**: List devices, get device status, retrieve device serial numbers
+- **Content Control**: Display text content, display images, switch to next content
+- **Task Management**: List content tasks configured on devices
+- **API Integration**: Full access to Dot API endpoints for automation
+
+#### Prerequisites
+
+1.  **Dot API Key**: Get an API key from the Dot. App (see https://dot.mindreset.tech/docs/service/service/open/get_api)
+2.  **Environment Variable**: Set `DOT_API_KEY` environment variable with your API key
+3.  **Network Access**: The agent needs access to api.mindreset.tech
+
+**Quick Start:**
+```bash
+export DOT_API_KEY=your_api_key_here
+```
+
+#### Usage Examples
+
+List all devices:
+```bash
+cd skills/quote0-dot-screen
+python scripts/list_devices.py
+```
+
+Display text on a device:
+```bash
+python scripts/display_text.py <device_id> "Hello World" --title "Greeting" --signature "Today"
+```
+
+Display an image:
+```bash
+python scripts/display_image.py <device_id> "https://example.com/image.png"
+```
+
+Get device status:
+```bash
+python scripts/device_status.py <device_id>
+```
+
+Switch to next content:
+```bash
+python scripts/switch_next.py <device_id>
+```
+
+List device tasks:
+```bash
+python scripts/list_tasks.py <device_id>
+```
+
+#### Scripts
+
+- `scripts/display_text.py` - Display text content on device
+- `scripts/display_image.py` - Display image content on device
+- `scripts/switch_next.py` - Switch device to next content
+- `scripts/list_devices.py` - List all available devices
+- `scripts/device_status.py` - Get device status
+- `scripts/list_tasks.py` - List content tasks on device
+
+#### API Documentation
+
+For detailed API reference, see https://dot.mindreset.tech/docs/service/open or the skill's `references/api.md` file.
+
+---
+
 ## For Developers
 
 ### Repository Structure
