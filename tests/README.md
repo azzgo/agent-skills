@@ -1,9 +1,29 @@
 # Test Organization
 
-This directory contains tests for the aria2-json-rpc-skills project, organized by test type and skill.
+This directory contains tests for agent-skills project, organized by test type and skill.
 
 ## Directory Structure
 
+```
+tests/
+├── unit/                           # Unit tests
+│   ├── aria2-json-rpc-skill/       # Tests for aria2-json-rpc skill
+│   │   ├── test_rpc_client.py      # RPC client tests
+│   │   ├── test_config_loader.py   # Configuration loader tests
+│   │   ├── test_command_mapper.py  # Command mapper tests
+│   │   └── test_milestone3.py     # Milestone 3 features tests
+│   └── quote0-dot-screen-skill/    # Tests for quote0-dot-screen skill
+│       ├── test_api_client.py      # API client tests
+│       ├── test_list_devices.py    # Device listing tests
+│       ├── test_device_status.py   # Device status tests
+│       ├── test_display_text.py    # Text display tests
+│       ├── test_display_image.py   # Image display tests
+│       ├── test_switch_next.py     # Content switching tests
+│       └── test_list_tasks.py     # Task listing tests
+│
+├── integration/                    # Integration tests
+│
+└── README.md                       # This file
 ```
 tests/
 ├── unit/                           # Unit tests
@@ -78,20 +98,36 @@ uv run pytest tests/unit/aria2-json-rpc-skill/test_rpc_client.py::TestAria2RpcCl
 
 ## Test Organization
 
-Tests are organized by the features they cover:
+Tests are organized by the skill and features they cover:
 
-### Core Features
+### aria2-json-rpc Skill
+
+**Core Features:**
 - **RPC client functionality**: HTTP POST, token injection, response parsing
 - **Configuration loading**: config.json, environment variables, validation
 - **Command mapping**: Natural language command parsing
 
-### Advanced Features
+**Advanced Features:**
 - **Download control**: Pause, resume, remove operations
 - **Global statistics and options**: Server-wide configuration
 - **Torrent and metalink operations**: BitTorrent support
 - **WebSocket client support**: Real-time notifications (requires `websockets` package)
 
-All tests are automatically run together and include all necessary dependencies.
+### quote0-dot-screen Skill
+
+**Device Management:**
+- **Device listing**: API client calls, response formatting
+- **Device status**: Status queries, markdown formatting
+
+**Content Display:**
+- **Text display**: API requests, optional parameters (title, signature, icon, link)
+- **Image display**: Base64 encoding, dithering options, border settings
+
+**Content Control:**
+- **Switch next**: Navigation between content items
+- **List tasks**: Task enumeration, task type filtering
+
+All tests:
 
 ## Adding Tests for New Skills
 
