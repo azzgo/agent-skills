@@ -3,13 +3,15 @@
 Display text on Quote/0 device.
 
 Usage:
-    python display_text.py <device_id> <message> [--title <title>] [--signature <signature>] [--refresh-now]
+    python display_text.py <device_id> <message> [--title <title>] [--signature <signature>] [--icon <icon>] [--link <link>] [--task-key <task_key>] [--no-refresh]
 """
 
 import sys
 import os
-import requests
 import argparse
+
+sys.path.insert(0, os.path.dirname(__file__))
+from api_client import api_request
 
 
 def display_text(
@@ -17,6 +19,9 @@ def display_text(
     message: str,
     title: str | None = None,
     signature: str | None = None,
+    icon: str | None = None,
+    link: str | None = None,
+    task_key: str | None = None,
     refresh_now: bool = True,
 ):
     """
@@ -27,31 +32,29 @@ def display_text(
         message: The text content to display
         title: Optional title to display
         signature: Optional signature to display
+        icon: Optional base64-encoded PNG icon data (40px×40px)
+        link: Optional NFC redirect link
+        task_key: Optional task key for specific Text API content
         refresh_now: Whether to display content immediately (default: True)
+
+    Returns:
+        dict: API response
     """
-    api_key = os.environ.get("DOT_API_KEY")
-    if not api_key:
-        print("Error: DOT_API_KEY environment variable not set", file=sys.stderr)
-        print("Please set it with: export DOT_API_KEY=your_api_key", file=sys.stderr)
-        sys.exit(1)
-
-    url = f"https://dot.mindreset.tech/api/authV2/open/device/{device_id}/text"
-
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
+    endpoint = f"/open/device/{device_id}/text"
+    
     data: dict[str, str | bool] = {"refreshNow": refresh_now, "message": message}
     if title:
         data["title"] = title
     if signature:
         data["signature"] = signature
-
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    if icon:
+        data["icon"] = icon
+    if link:
+        data["link"] = link
+    if task_key:
+        data["taskKey"] = task_key
+    
+    return api_request(endpoint, data)
 
 
 def main():
@@ -60,20 +63,24 @@ def main():
     parser.add_argument("message", help="Text content to display")
     parser.add_argument("--title", help="Title to display")
     parser.add_argument("--signature", help="Signature to display")
-    parser.add_argument(
-        "--refresh-now", action="store_true", help="Display content immediately"
-    )
-    parser.add_argument(
-        "--no-refresh", action="store_true", help="Do not display immediately"
-    )
+    parser.add_argument("--icon", help="Base64-encoded PNG icon data (40px×40px)")
+    parser.add_argument("--link", help="NFC redirect link")
+    parser.add_argument("--task-key", help="Task key for specific Text API content")
+    parser.add_argument("--no-refresh", action="store_true", help="Do not display immediately")
 
     args = parser.parse_args()
 
-    refresh_now = args.refresh_now and not args.no_refresh
     result = display_text(
-        args.device_id, args.message, args.title, args.signature, refresh_now
+        args.device_id,
+        args.message,
+        args.title,
+        args.signature,
+        args.icon,
+        args.link,
+        args.task_key,
+        not args.no_refresh,
     )
-    print("Text: {}".format(result.get("message", "Sent successfully")))
+    print(result.get("message", "Sent successfully"))
 
 
 if __name__ == "__main__":
