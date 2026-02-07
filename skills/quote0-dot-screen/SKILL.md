@@ -1,6 +1,11 @@
 ---
 name: quote0-dot-screen
 description: Control Quote/0 electronic screen devices via Dot API. Use when the user needs to interact with Quote/0 devices for: (1) Getting device information or status, (2) Displaying text content, (3) Displaying images, (4) Switching content, (5) Listing device tasks.
+license: MIT
+compatibility: Requires Python 3.10+ (uses modern type hints like `str | None`). No external dependencies - uses only Python standard library (urllib, json, argparse).
+metadata:
+  author: ISON
+  version: "1.0.0"
 ---
 
 # Quote/0 Dot Screen Controller
