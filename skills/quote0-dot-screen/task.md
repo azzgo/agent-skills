@@ -16,8 +16,8 @@ This file tracks the implementation plan for the quote0-dot-screen skill.
 - [x] Add unit tests for device_status.py
 - [x] Implement switch_next.py script
 - [x] Add unit tests for switch_next.py
-- [ ] Implement list_tasks.py script
-- [ ] Add unit tests for list_tasks.py
+- [x] Implement list_tasks.py script
+- [x] Add unit tests for list_tasks.py
 
 ### Phase 2: Documentation
 
