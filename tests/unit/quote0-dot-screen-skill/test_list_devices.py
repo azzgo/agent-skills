@@ -38,7 +38,7 @@ class TestListDevices(unittest.TestCase):
         self.assertEqual(result[0]["id"], "ABCD1234ABCD")
         self.assertEqual(result[0]["series"], "quote")
 
-    @patch.dict(os.environ, {})
+    @patch.dict(os.environ, {"DOT_API_KEY": ""})
     @patch("sys.exit")
     def test_list_devices_missing_api_key(self, mock_exit):
         """Test missing API key error."""
