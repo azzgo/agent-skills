@@ -3,53 +3,86 @@
 Display image on Quote/0 device.
 
 Usage:
-    python display_image.py <device_id> <image_url>
+    python display_image.py <device_id> <base64_image> [--link <link>] [--border <0|1>] [--dither-type <type>] [--dither-kernel <kernel>] [--task-key <task_key>] [--no-refresh]
 """
 
 import sys
 import os
-import requests
 import argparse
 
+sys.path.insert(0, os.path.dirname(__file__))
+from api_client import api_request
 
-def display_image(device_id: str, image_url: str):
+
+def display_image(
+    device_id: str,
+    image: str,
+    link: str | None = None,
+    border: int = 0,
+    dither_type: str | None = None,
+    dither_kernel: str | None = None,
+    task_key: str | None = None,
+    refresh_now: bool = True,
+):
     """
     Display an image on a Quote/0 device.
 
     Args:
         device_id: The device serial number
-        image_url: URL of the image to display
+        image: Base64-encoded PNG image data (296px×152px)
+        link: Optional NFC redirect link
+        border: Border color (0=white, 1=black, default: 0)
+        dither_type: Optional dither type (DIFFUSION, ORDERED, NONE)
+        dither_kernel: Optional dither kernel (FLOYD_STEINBERG, ATKINSON, etc.)
+        task_key: Optional task key for specific Image API content
+        refresh_now: Whether to display immediately (default: True)
+
+    Returns:
+        dict: API response
     """
-    api_key = os.environ.get("DOT_API_KEY")
-    if not api_key:
-        print("Error: DOT_API_KEY environment variable not set", file=sys.stderr)
-        print("Please set it with: export DOT_API_KEY=your_api_key", file=sys.stderr)
-        sys.exit(1)
-
-    url = f"https://api.mindreset.tech/api/quotes/{device_id}/image"
-
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
-    data = {"image_url": image_url}
-
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    endpoint = f"/open/device/{device_id}/image"
+    
+    data: dict[str, str | int | bool] = {"refreshNow": refresh_now, "image": image}
+    
+    if border in (0, 1):
+        data["border"] = border
+    
+    if link:
+        data["link"] = link
+    if dither_type:
+        data["ditherType"] = dither_type
+    if dither_kernel:
+        data["ditherKernel"] = dither_kernel
+    if task_key:
+        data["taskKey"] = task_key
+    
+    return api_request(endpoint, data)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Display image on Quote/0 device")
     parser.add_argument("device_id", help="Device serial number")
-    parser.add_argument("image_url", help="URL of the image to display")
+    parser.add_argument("image", help="Base64-encoded PNG image data (296px×152px)")
+    parser.add_argument("--link", help="NFC redirect link")
+    parser.add_argument("--border", type=int, choices=[0, 1], default=0, help="Border color (0=white, 1=black, default: 0)")
+    parser.add_argument("--dither-type", choices=["DIFFUSION", "ORDERED", "NONE"], help="Dither type (DIFFUSION, ORDERED, NONE)")
+    parser.add_argument("--dither-kernel", help="Dither kernel (FLOYD_STEINBERG, ATKINSON, BURKES, etc.)")
+    parser.add_argument("--task-key", help="Task key for specific Image API content")
+    parser.add_argument("--no-refresh", action="store_true", help="Do not display immediately")
 
     args = parser.parse_args()
 
-    result = display_image(args.device_id, args.image_url)
-    print("Image: {}".format(result.get("message", "Sent successfully")))
+    result = display_image(
+        args.device_id,
+        args.image,
+        args.link,
+        args.border,
+        args.dither_type,
+        args.dither_kernel,
+        args.task_key,
+        not args.no_refresh,
+    )
+    print(result.get("message", "Sent successfully"))
 
 
 if __name__ == "__main__":
