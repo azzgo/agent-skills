@@ -1,54 +1,33 @@
-# Quote/0 Dot Screen - Enhancement Tasks
+# Quote/0 Dot Screen - Implementation Tasks
 
-This file tracks enhancements to be implemented for the quote0-dot-screen skill.
+This file tracks the implementation plan for the quote0-dot-screen skill.
 
-## Completed
+## Implementation Plan
 
-- [x] Basic skill structure created
-- [x] SKILL.md with core documentation
-- [x] Scripts for text display
-- [x] Scripts for image display
-- [x] Scripts for switching content
-- [x] Scripts for device management
+### Phase 1: Core Scripts & Testing
 
-## Pending Enhancements
+- [x] Implement list_devices.py script
+- [x] Add unit tests for list_devices.py
+- [ ] Implement text.py script for text display
+- [ ] Add unit tests for text.py
+- [ ] Implement image.py script for image display
+- [ ] Add unit tests for image.py
+- [ ] Implement device_status.py script
+- [ ] Add unit tests for device_status.py
+- [ ] Implement next_content.py script
+- [ ] Add unit tests for next_content.py
+- [ ] Implement list_tasks.py script
+- [ ] Add unit tests for list_tasks.py
 
-### Documentation
+### Phase 2: Documentation
 
-- [ ] Add detailed API reference to references/api.md
-- [ ] Add example usage patterns to references/examples.md
-- [ ] Document error handling patterns
+- [ ] Update SKILL.md with complete script references
+- [ ] Create references/usage.md with practical examples
 - [ ] Add troubleshooting guide
-
-### Script Improvements
-
-- [ ] Add retry logic for failed API calls
-- [ ] Add timeout configuration
-- [ ] Improve error messages with specific guidance
-- [ ] Add verbose mode for debugging
-
-### Features
-
-- [ ] Add script for device pairing (if API supports it)
-- [ ] Add content management capabilities (upload, delete)
-- [ ] Add device configuration management
-- [ ] Add batch operations for multiple devices
-
-### Testing
-
-- [ ] Add unit tests for all scripts
-- [ ] Add integration tests with mock API
-- [ ] Test error handling scenarios
-- [ ] Validate against actual Dot API
-
-### Quality
-
-- [ ] Add type hints validation
-- [ ] Add input validation for all scripts
-- [ ] Add logging support
-- [ ] Add configuration file support
+- [ ] Document environment setup and API key requirements
 
 ## Notes
 
 - API documentation: https://dot.mindreset.tech/docs/service/open
 - All scripts require `DOT_API_KEY` environment variable
+- Use Python builtin libraries (urllib, json, etc.) for dependencies
