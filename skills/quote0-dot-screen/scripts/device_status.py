@@ -3,14 +3,12 @@
 Get Quote/0 device status.
 
 Usage:
-    python device_status.py <device_id>
+    python device_status.py <device_id> [--format json|markdown]
 """
 
-import sys
-import os
-import requests
-import argparse
 import json
+import argparse
+from api_client import api_request
 
 
 def get_device_status(device_id: str):
@@ -23,33 +21,77 @@ def get_device_status(device_id: str):
     Returns:
         Device status information
     """
-    api_key = os.environ.get("DOT_API_KEY")
-    if not api_key:
-        print("Error: DOT_API_KEY environment variable not set", file=sys.stderr)
-        print("Please set it with: export DOT_API_KEY=your_api_key", file=sys.stderr)
-        sys.exit(1)
+    return api_request(f"/open/device/{device_id}/status")
 
-    url = f"https://api.mindreset.tech/api/quotes/{device_id}/status"
 
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+def format_as_markdown(status):
+    """
+    Format device status as markdown.
 
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    Args:
+        status: Device status dictionary
+
+    Returns:
+        Markdown formatted string
+    """
+    output = []
+
+    output.append("## Device Information")
+    output.append(f"Device ID: {status.get('deviceId', 'N/A')}")
+    output.append(f"Alias: {status.get('alias') or 'N/A'}")
+    output.append(f"Location: {status.get('location') or 'N/A'}")
+    output.append("")
+
+    status_obj = status.get('status', {})
+    output.append("## Status")
+    output.append(f"Version: {status_obj.get('version', 'N/A')}")
+    output.append(f"Current: {status_obj.get('current', 'N/A')}")
+    output.append(f"Description: {status_obj.get('description', 'N/A')}")
+    output.append(f"Battery: {status_obj.get('battery', 'N/A')}")
+    output.append(f"WiFi: {status_obj.get('wifi', 'N/A')}")
+    output.append("")
+
+    render_info = status.get('renderInfo', {})
+    output.append("## Render Info")
+    output.append(f"Last Render: {render_info.get('last', 'N/A')}")
+
+    current_render = render_info.get('current', {})
+    output.append("Current Render:")
+    output.append(f"  Rotated: {current_render.get('rotated', 'N/A')}")
+    output.append(f"  Border: {current_render.get('border', 'N/A')}")
+    images = current_render.get('image') or []
+    if images:
+        for i, img in enumerate(images):
+            output.append(f"  Image {i+1}: {img}")
+    else:
+        output.append("  Images: N/A")
+
+    next_render = render_info.get('next', {})
+    output.append("Next Scheduled Render:")
+    output.append(f"  Battery Mode: {next_render.get('battery', 'N/A')}")
+    output.append(f"  Power Mode: {next_render.get('power', 'N/A')}")
+
+    return "\n".join(output)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Get Quote/0 fancvice status")
+    parser = argparse.ArgumentParser(description="Get Quote/0 device status")
     parser.add_argument("device_id", help="Device serial number")
+    parser.add_argument(
+        "--format",
+        choices=["json", "markdown"],
+        default="markdown",
+        help="Output format (default: markdown)"
+    )
 
     args = parser.parse_args()
 
     result = get_device_status(args.device_id)
-    print(json.dumps(result, indent=2))
+
+    if args.format == "json":
+        print(json.dumps(result, indent=2))
+    else:
+        print(format_as_markdown(result))
 
 
 if __name__ == "__main__":
