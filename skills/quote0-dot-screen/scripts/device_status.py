@@ -8,7 +8,7 @@ Usage:
 
 import json
 import argparse
-from api_client import api_request
+from api_client import api_request, format_as_markdown_dict
 
 
 def get_device_status(device_id: str):
@@ -34,28 +34,44 @@ def format_as_markdown(status):
     Returns:
         Markdown formatted string
     """
-    output = []
+    sections = [
+        (
+            "## Device Information",
+            [
+                ("deviceId", "Device ID"),
+                ("alias", "Alias"),
+                ("location", "Location")
+            ],
+            None
+        ),
+        (
+            "## Status",
+            [
+                ("version", "Version"),
+                ("current", "Current"),
+                ("description", "Description"),
+                ("battery", "Battery"),
+                ("wifi", "WiFi")
+            ],
+            "status"
+        ),
+        (
+            "## Render Info",
+            [
+                ("last", "Last Render")
+            ],
+            "renderInfo"
+        )
+    ]
 
-    output.append("## Device Information")
-    output.append(f"Device ID: {status.get('deviceId', 'N/A')}")
-    output.append(f"Alias: {status.get('alias') or 'N/A'}")
-    output.append(f"Location: {status.get('location') or 'N/A'}")
-    output.append("")
+    result = format_as_markdown_dict(status, sections)
 
-    status_obj = status.get('status', {})
-    output.append("## Status")
-    output.append(f"Version: {status_obj.get('version', 'N/A')}")
-    output.append(f"Current: {status_obj.get('current', 'N/A')}")
-    output.append(f"Description: {status_obj.get('description', 'N/A')}")
-    output.append(f"Battery: {status_obj.get('battery', 'N/A')}")
-    output.append(f"WiFi: {status_obj.get('wifi', 'N/A')}")
-    output.append("")
+    output = [result]
 
     render_info = status.get('renderInfo', {})
-    output.append("## Render Info")
-    output.append(f"Last Render: {render_info.get('last', 'N/A')}")
-
     current_render = render_info.get('current', {})
+    next_render = render_info.get('next', {})
+
     output.append("Current Render:")
     output.append(f"  Rotated: {current_render.get('rotated', 'N/A')}")
     output.append(f"  Border: {current_render.get('border', 'N/A')}")
@@ -66,7 +82,7 @@ def format_as_markdown(status):
     else:
         output.append("  Images: N/A")
 
-    next_render = render_info.get('next', {})
+    output.append("")
     output.append("Next Scheduled Render:")
     output.append(f"  Battery Mode: {next_render.get('battery', 'N/A')}")
     output.append(f"  Power Mode: {next_render.get('power', 'N/A')}")

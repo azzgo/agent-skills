@@ -115,3 +115,46 @@ def format_as_markdown_list(items, field_names, field_labels=None, empty_message
             output.append("")
 
     return "\n".join(output)
+
+
+def format_as_markdown_dict(data, sections):
+    """
+    Format nested dictionary as markdown with sections.
+
+    Args:
+        data: Dictionary containing the data
+        sections: List of section tuples (title, fields, nested_key)
+            - title: Section heading (e.g., "## Device Information")
+            - fields: List of (field_name, label) tuples or just field_name strings
+            - nested_key: Optional key in data to get values from (None for top-level)
+
+    Returns:
+        str: Markdown formatted string
+    """
+    output = []
+
+    for section_title, section_fields, nested_key in sections:
+        output.append(section_title)
+
+        if nested_key:
+            section_data = data.get(nested_key, {})
+        else:
+            section_data = data
+
+        for field_spec in section_fields:
+            if isinstance(field_spec, tuple):
+                field_name, label = field_spec
+            else:
+                field_name = field_spec
+                label = field_name.replace("_", " ").title()
+
+            value = section_data.get(field_name, "N/A")
+
+            if value is None:
+                value = "N/A"
+
+            output.append(f"{label}: {value}")
+
+        output.append("")
+
+    return "\n".join(output).rstrip()
